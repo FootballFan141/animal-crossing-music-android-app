@@ -1,0 +1,23 @@
+<resources>
+    <string name="ADMOB_ID">ca-app-pub-9407401103908784~7452165562</string>
+    <string name="ADMOB_BANNER">ca-app-pub-9407401103908784/1136919092</string>
+    <string name="ADMOB_INTERSTITIAL">ca-app-pub-9407401103908784/7779893654</string>
+    <string name="publisherIDs">pub-9407401103908784</string>
+
+    <string name="APP_NAME">AC Music</string>
+
+    <string name="assets_alert_msg">You need the assets for this game first.</string>
+    <string name="snackbarAssetsAction">Download Now</string>
+    <string name="snackbarAssetsAction2">Fix now?</string>
+
+    <string name="channel_name">Downloading Assets</string>
+    <string name="channel_description">Notification Channel for AC music assets.</string>
+    <string name="NOTIFICATION_MAIN">main</string>
+    <string name="CHANNEL_ID">ASSETS_DOWNLOADER</string>
+
+    <string name="wild_world_city_folk_btn">Wild World | CIty Folk</string>
+    <string name="new_leaf_btn">New Leaf</string>
+    <string name="gamecube_btn">Gamecube</string>
+    <string name="resume_download">Resume Download</string>
+    <string name="pause_download">Pause Download</string>
+</resources>

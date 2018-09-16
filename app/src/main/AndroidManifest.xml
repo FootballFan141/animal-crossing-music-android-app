@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.appsbytravis.acmusic">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/APP_NAME"
+        tools:ignore="GoogleAppIndexingWarning">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/ADMOB_ID" />
+
+        <activity
+            android:name=".HomeActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Launcher">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Gamecube"
+            android:screenOrientation="portrait"
+            android:theme="@style/MusicPlayerScreen" />
+        <activity
+            android:name=".WildWorldCityFolk"
+            android:screenOrientation="portrait"
+            android:theme="@style/MusicPlayerScreen" />
+        <activity
+            android:name=".NewLeaf"
+            android:screenOrientation="portrait"
+            android:theme="@style/MusicPlayerScreen" />
+        <activity
+            android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+
+        <receiver android:name=".utils.ACMusicBroadcastReceiver" />
+    </application>
+
+</manifest>

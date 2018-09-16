@@ -1,0 +1,19 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="MusicPlayerScreen" parent="AppTheme">
+        <item name="android:windowBackground">@drawable/app_bg1</item>
+    </style>
+
+    <style name="AppTheme.Launcher" parent="AppTheme">
+        <item name="colorPrimaryDark">@color/colorBlue</item>
+        <item name="android:windowBackground">@drawable/launch</item>
+    </style>
+
+</resources>

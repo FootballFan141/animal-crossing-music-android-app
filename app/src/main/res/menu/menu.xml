@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menuTitle"
+        android:title="Weather"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menuCancel"
+        android:title="Cancel"
+        android:visible="false"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/normal"
+        android:checkable="true"
+        android:checked="true"
+        android:title="Clear/Cloudy" />
+    <item
+        android:id="@+id/raining"
+        android:checkable="true"
+        android:title="Rain/Storm" />
+    <item
+        android:id="@+id/snowing"
+        android:checkable="true"
+        android:title="Snow" />
+    <item
+        android:id="@+id/licenses"
+        android:title="Licenses" />
+</menu>
