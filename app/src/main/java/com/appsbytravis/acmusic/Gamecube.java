@@ -100,6 +100,17 @@ public class Gamecube extends AppCompatActivity {
         ACMusicMediaPlayer.stop();
         if (pendingIntent != null) {
             alarmManager.cancel(pendingIntent);
+            pendingIntent.cancel();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        ACMusicMediaPlayer.stop();
+        if (pendingIntent != null) {
+            alarmManager.cancel(pendingIntent);
+            pendingIntent.cancel();
         }
     }
 }
