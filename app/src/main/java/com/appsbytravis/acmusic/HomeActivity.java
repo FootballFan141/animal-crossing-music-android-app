@@ -62,9 +62,13 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     };
 
     private static final String[] ASSET_SIZES = new String[]{
-            "486.61", // gamecube
-            "225.59", // wwcf
-            "245.79"  // newleaf
+//            "486.61", // gamecube
+//            "225.59", // wwcf
+//            "245.79"  // newleaf¨
+            "197.47", // gamecube
+            "64.90", // wwcf
+            "74.40"  // newleaf
+
     };
 
     private NotificationManagerCompat manager;
