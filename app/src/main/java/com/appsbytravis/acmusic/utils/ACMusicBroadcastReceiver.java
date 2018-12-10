@@ -30,7 +30,6 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
     private Intent changeMusicIntent;
     private String path;
 
-
     @Override
     public void onReceive(Context context, Intent intent) {
         NotificationManagerCompat manager = NotificationManagerCompat.from(context);

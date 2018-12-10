@@ -3,6 +3,10 @@ package com.appsbytravis.acmusic.utils;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.widget.Toast;
+
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public class ACMusicMediaPlayer {
 
@@ -10,8 +14,22 @@ public class ACMusicMediaPlayer {
 
     public static void play(Context context, Uri file) {
         if (player == null) {
-
             player = MediaPlayer.create(context, file);
+
+            if (player == null) {
+
+                player = new MediaPlayer();
+                try {
+                    FileInputStream inputStream = new FileInputStream(file.getPath());
+                    player.setDataSource(inputStream.getFD());
+                    inputStream.close();
+                    player.prepare();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(context, "Problem with music...", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
         }
         player.start();
 
@@ -41,5 +59,4 @@ public class ACMusicMediaPlayer {
     public static boolean isPlaying() {
         return player != null && player.isPlaying();
     }
-
 }

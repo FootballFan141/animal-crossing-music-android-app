@@ -6,6 +6,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -97,24 +99,11 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
         instance = getInstance();
 
 
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        manager = NotificationManagerCompat.from(this);
-        initializeAds();
-        prepareInterstitialAd();
-
-        setContentView(R.layout.activity_home);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel();
-        }
-        storage = new Storage(this);
-        path = storage.getInternalFilesDirectory() + "/";
-
         AdView bannerAd = findViewById(R.id.adView);
-        bannerAd.loadAd(AdRequestBuilder.build());
-
         progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
         pauseDownloadBtn = findViewById(R.id.pauseDownloadBtn);
@@ -122,10 +111,29 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         wwcfBtn = findViewById(R.id.wwcfBtn);
         newleafBtn = findViewById(R.id.newleafBtn);
 
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        manager = NotificationManagerCompat.from(this);
+        storage = new Storage(this);
+        path = storage.getInternalFilesDirectory() + "/";
 
-        pauseDownloadBtn.setOnClickListener(view -> {
-            pauseDownload();
-        });
+
+        if (isNetworkConnected()) {
+            if (bannerAd.getVisibility() == View.GONE) {
+                bannerAd.setVisibility(View.VISIBLE);
+            }
+            bannerAd.setVisibility(View.VISIBLE);
+            initializeAds();
+            prepareInterstitialAd();
+            bannerAd.loadAd(AdRequestBuilder.build());
+        } else {
+            bannerAd.setVisibility(View.GONE);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel();
+        }
+
+        pauseDownloadBtn.setOnClickListener(view -> pauseDownload());
 
         gamecubeBtn.setOnClickListener(view -> {
             int files = storage.getNestedFiles(path.concat(ASSETS_PATH.concat("gamecube"))).size();
@@ -133,9 +141,14 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                 if (storage.isFileExist(path.concat(ASSET_FILES[0]))) {
                     storage.deleteFile(path.concat(ASSET_FILES[0]));
                 }
-                if (mInterstitialAd.isLoaded()) {
-                    mInterstitialAd.setAdListener(new AdListeners(this, "gamecube"));
-                    mInterstitialAd.show();
+                if (isNetworkConnected()) {
+                    if (mInterstitialAd.isLoaded()) {
+                        mInterstitialAd.setAdListener(new AdListeners(this, "gamecube"));
+                        mInterstitialAd.show();
+                    } else {
+                        Intent i = new Intent(HomeActivity.this, Gamecube.class);
+                        startActivity(i);
+                    }
                 } else {
                     Intent i = new Intent(HomeActivity.this, Gamecube.class);
                     startActivity(i);
@@ -148,6 +161,10 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     newleafBtn.setEnabled(false);
                     extractAssets(ASSET_FILES[0], ASSET_SIZES[0]);
                 } else {
+                    if (!isNetworkConnected()) {
+                        Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     Snackbar snackbar = createSnackbar(getString(R.string.assets_alert_msg), Snackbar.LENGTH_LONG, "gamecube");
                     snackbar.show();
                 }
@@ -159,9 +176,14 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                 if (storage.isFileExist(path.concat(ASSET_FILES[1]))) {
                     storage.deleteFile(path.concat(ASSET_FILES[1]));
                 }
-                if (mInterstitialAd.isLoaded()) {
-                    mInterstitialAd.setAdListener(new AdListeners(this, "wwcf"));
-                    mInterstitialAd.show();
+                if (isNetworkConnected()) {
+                    if (mInterstitialAd.isLoaded()) {
+                        mInterstitialAd.setAdListener(new AdListeners(this, "wwcf"));
+                        mInterstitialAd.show();
+                    } else {
+                        Intent i = new Intent(HomeActivity.this, WildWorldCityFolk.class);
+                        startActivity(i);
+                    }
                 } else {
                     Intent i = new Intent(HomeActivity.this, WildWorldCityFolk.class);
                     startActivity(i);
@@ -174,6 +196,10 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     newleafBtn.setEnabled(false);
                     extractAssets(ASSET_FILES[1], ASSET_SIZES[1]);
                 } else {
+                    if (!isNetworkConnected()) {
+                        Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     Snackbar snackbar = createSnackbar(getString(R.string.assets_alert_msg), Snackbar.LENGTH_LONG, "wwcf");
                     snackbar.show();
                 }
@@ -185,9 +211,14 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                 if (storage.isFileExist(path.concat(ASSET_FILES[2]))) {
                     storage.deleteFile(path.concat(ASSET_FILES[2]));
                 }
-                if (mInterstitialAd.isLoaded()) {
-                    mInterstitialAd.setAdListener(new AdListeners(this, "newleaf"));
-                    mInterstitialAd.show();
+                if (isNetworkConnected()) {
+                    if (mInterstitialAd.isLoaded()) {
+                        mInterstitialAd.setAdListener(new AdListeners(this, "newleaf"));
+                        mInterstitialAd.show();
+                    } else {
+                        Intent i = new Intent(HomeActivity.this, NewLeaf.class);
+                        startActivity(i);
+                    }
                 } else {
                     Intent i = new Intent(HomeActivity.this, NewLeaf.class);
                     startActivity(i);
@@ -200,6 +231,10 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     wwcfBtn.setEnabled(false);
                     extractAssets(ASSET_FILES[2], ASSET_SIZES[2]);
                 } else {
+                    if (!isNetworkConnected()) {
+                        Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     Snackbar snackbar = createSnackbar(getString(R.string.assets_alert_msg), Snackbar.LENGTH_LONG, "newleaf");
                     snackbar.show();
                 }
@@ -282,6 +317,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                 if (firebasetask != null) {
                     firebasetask.cancel();
                 }
+                Toast.makeText(this, "Canceling...", Toast.LENGTH_SHORT).show();
                 item.setVisible(false);
                 return true;
         }
@@ -310,15 +346,6 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         newleafBtn.setEnabled(false);
         cancelBtn.setVisible(true);
         downloadAssets(ASSET_FILES[0], path.concat(ASSET_FILES[0]));
-        NotificationCompat.Builder notification = showNotification("This won't take long. :)");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            manager.notify(R.string.NOTIFICATION_MAIN, notification.build());
-        } else {
-            manager.notify(R.string.NOTIFICATION_MAIN, notification.getNotification());
-        }
-        if (mInterstitialAd.isLoaded()) {
-            mInterstitialAd.show();
-        }
     }
 
     private void wwcfAssets() {
@@ -327,15 +354,6 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         newleafBtn.setEnabled(false);
         cancelBtn.setVisible(true);
         downloadAssets(ASSET_FILES[1], path.concat(ASSET_FILES[1]));
-        NotificationCompat.Builder notification = showNotification("This won't take long. :)");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            manager.notify(R.string.NOTIFICATION_MAIN, notification.build());
-        } else {
-            manager.notify(R.string.NOTIFICATION_MAIN, notification.getNotification());
-        }
-        if (mInterstitialAd.isLoaded()) {
-            mInterstitialAd.show();
-        }
     }
 
     private void newLeafAssets() {
@@ -344,15 +362,6 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         newleafBtn.setEnabled(false);
         cancelBtn.setVisible(true);
         downloadAssets(ASSET_FILES[2], path.concat(ASSET_FILES[2]));
-        NotificationCompat.Builder notification = showNotification("This won't take long. :)");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            manager.notify(R.string.NOTIFICATION_MAIN, notification.build());
-        } else {
-            manager.notify(R.string.NOTIFICATION_MAIN, notification.getNotification());
-        }
-        if (mInterstitialAd.isLoaded()) {
-            mInterstitialAd.show();
-        }
     }
 
     @Override
@@ -381,6 +390,18 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
 
     @Override
     public void downloadAssets(String filename, String destinationPath) {
+
+        NotificationCompat.Builder downloadNotification = showNotification("This won't take long. :)");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            manager.notify(R.string.NOTIFICATION_MAIN, downloadNotification.build());
+        } else {
+            manager.notify(R.string.NOTIFICATION_MAIN, downloadNotification.getNotification());
+        }
+        if (mInterstitialAd != null) {
+            if (mInterstitialAd.isLoaded()) {
+                mInterstitialAd.show();
+            }
+        }
 
         progressBar.setVisibility(View.VISIBLE);
         pauseDownloadBtn.setVisibility(View.VISIBLE);
@@ -465,8 +486,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                 return;
             }
             firebasetask.pause();
-            pauseDownloadBtn.setText(getString(R.string.resume_download));
-
+            pauseDownloadBtn.setText(R.string.resume_download);
         }
     }
 
@@ -551,5 +571,14 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         mInterstitialAd.setAdUnitId(getString(R.string.ADMOB_INTERSTITIAL));
         mInterstitialAd.setAdListener(new AdListeners(this, ""));
         AdRequestBuilder = new AdRequest.Builder();
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        NetworkInfo wifiInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo dataInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+        return (wifiInfo.getState().equals(NetworkInfo.State.CONNECTED) || dataInfo.getState().equals(NetworkInfo.State.CONNECTED));
+
     }
 }
