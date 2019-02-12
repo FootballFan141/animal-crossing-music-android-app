@@ -106,7 +106,7 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                 changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:GC");
                 pendingIntent = PendingIntent.getBroadcast(context, 0, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), calendar.getTimeInMillis(), pendingIntent);
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), calendar.getTimeInMillis(), pendingIntent);
                 break;
             case "ACTION_UPDATE_MUSIC:WWCF":
                 hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -140,7 +140,7 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                 changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:WWCF");
                 pendingIntent = PendingIntent.getBroadcast(context, 0, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), calendar.getTimeInMillis(), pendingIntent);
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), calendar.getTimeInMillis(), pendingIntent);
                 break;
             case "ACTION_UPDATE_MUSIC:NL":
                 hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -174,7 +174,7 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                 changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:NL");
                 pendingIntent = PendingIntent.getBroadcast(context, 0, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), calendar.getTimeInMillis(), pendingIntent);
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), calendar.getTimeInMillis(), pendingIntent);
                 break;
         }
     }

@@ -36,7 +36,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
+import com.google.android.gms.oss.licenses.plugin.OssLicensesPlugin;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -284,7 +284,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
 
         switch (item.getItemId()) {
             case R.id.licenses:
-                startActivity(new Intent(this, OssLicensesMenuActivity.class));
+                startActivity(new Intent(this, OssLicensesPlugin.class));
                 return true;
             case R.id.raining:
                 editor.putBoolean("normal", false);

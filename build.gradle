@@ -10,9 +10,12 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
-        classpath 'com.google.gms:google-services:4.0.1'
-        classpath 'com.google.android.gms:oss-licenses-plugin:0.9.3'
+        classpath 'com.android.tools.build:gradle:3.3.1'
+        classpath 'com.google.gms:google-services:4.2.0'
+        classpath fileTree(include: ['*.jar'], dir: 'app/libs')
+
+        // Uncomment the following classpath to use if you haven't added the patched oss-licenses-plugin.jar (to fix depreciation warnings) to the libs dir
+        //classpath 'com.google.android.gms:oss-licenses-plugin:0.9.4'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files

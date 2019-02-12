@@ -82,12 +82,13 @@ public class Gamecube extends AppCompatActivity {
         calendar.add(Calendar.HOUR_OF_DAY, 1);
         long timeInMillis = calendar.getTimeInMillis();
 
+
         Intent changeMusicIntent = new Intent(this, ACMusicBroadcastReceiver.class);
         changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:GC");
         changeMusicIntent.putExtra("file", storage.getFile(file.getPath()).toURI());
         pendingIntent = PendingIntent.getBroadcast(this, 0, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC, timeInMillis, timeInMillis, pendingIntent);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeInMillis, timeInMillis, pendingIntent);
         if (!ACMusicMediaPlayer.isPlaying()) {
             ACMusicMediaPlayer.play(this, Uri.parse(file.getPath()));
         }
@@ -107,9 +108,5 @@ public class Gamecube extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (pendingIntent != null) {
-            alarmManager.cancel(pendingIntent);
-            pendingIntent.cancel();
-        }
     }
 }
