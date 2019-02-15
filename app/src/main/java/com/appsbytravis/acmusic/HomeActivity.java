@@ -36,7 +36,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.oss.licenses.plugin.OssLicensesPlugin;
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -284,7 +284,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
 
         switch (item.getItemId()) {
             case R.id.licenses:
-                startActivity(new Intent(this, OssLicensesPlugin.class));
+                startActivity(new Intent(this, OssLicensesMenuActivity.class));
                 return true;
             case R.id.raining:
                 editor.putBoolean("normal", false);
@@ -578,7 +578,18 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         NetworkInfo wifiInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         NetworkInfo dataInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-        return (wifiInfo.getState().equals(NetworkInfo.State.CONNECTED) || dataInfo.getState().equals(NetworkInfo.State.CONNECTED));
+        if (wifiInfo != null) {
 
+            if (wifiInfo.isConnected()) {
+                return wifiInfo.getState().equals(NetworkInfo.State.CONNECTED);
+            }
+        } else if (dataInfo != null) {
+
+            if (dataInfo.isConnected()) {
+                return dataInfo.getState().equals(NetworkInfo.State.CONNECTED);
+            }
+
+        }
+        return false;
     }
 }

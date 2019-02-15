@@ -15,6 +15,7 @@ import android.widget.Button;
 import com.appsbytravis.acmusic.utils.ACMusic;
 import com.appsbytravis.acmusic.utils.ACMusicBroadcastReceiver;
 import com.appsbytravis.acmusic.utils.ACMusicMediaPlayer;
+import com.appsbytravis.acmusic.utils.ACMusicService;
 import com.snatik.storage.Storage;
 
 import java.io.File;
@@ -89,11 +90,14 @@ public class WildWorldCityFolk extends AppCompatActivity {
         changeMusicIntent.putExtra("file", storage.getFile(file.getPath()).toURI());
         pendingIntent = PendingIntent.getBroadcast(this, 0, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeInMillis, timeInMillis, pendingIntent);
+        alarmManager.set(AlarmManager.RTC, timeInMillis, pendingIntent);
         if (!ACMusicMediaPlayer.isPlaying()) {
             ACMusicMediaPlayer.play(this, Uri.parse(file.getPath()));
         }
 
+        Intent intent = new Intent(getBaseContext(), ACMusicService.class);
+        intent.putExtra("pendingIntent", pendingIntent);
+        startService(intent);
     }
 
 

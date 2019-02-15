@@ -21,8 +21,8 @@ android {
         applicationId "com.appsbytravis.acmusic"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 4
-        versionName "4.0"
+        versionCode 5
+        versionName "5.0"
         signingConfig signingConfigs.config
     }
     buildTypes {
@@ -70,8 +70,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.7'
     implementation 'com.google.firebase:firebase-storage:16.0.5'
 
-    // Uncomment the following implementation to use if you haven't added the patched (to fix depreciation warnings) oss-licenses-plugin.jar file to the libs dir
-    //implementation 'com.google.android.gms:play-services-oss-licenses:16.0.2'
+    implementation 'com.google.android.gms:play-services-oss-licenses:16.0.2'
 }
 
 

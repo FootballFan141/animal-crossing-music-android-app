@@ -49,6 +49,7 @@
             android:theme="@style/AppTheme" />
 
         <receiver android:name=".utils.ACMusicBroadcastReceiver" />
+        <service android:name=".utils.ACMusicService" />
     </application>
 
 </manifest>
