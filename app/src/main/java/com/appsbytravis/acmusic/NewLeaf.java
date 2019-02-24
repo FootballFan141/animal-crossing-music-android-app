@@ -88,18 +88,18 @@ public class NewLeaf extends AppCompatActivity {
         Intent changeMusicIntent = new Intent(this, ACMusicBroadcastReceiver.class);
         changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:NL");
         changeMusicIntent.putExtra("file", storage.getFile(file.getPath()).toURI());
-        pendingIntent = PendingIntent.getBroadcast(this, 0, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        pendingIntent = PendingIntent.getBroadcast(this, 0, changeMusicIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC, timeInMillis, pendingIntent);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
         if (!ACMusicMediaPlayer.isPlaying()) {
             ACMusicMediaPlayer.play(this, Uri.parse(file.getPath()));
+            ACMusicMediaPlayer.start();
         }
 
         Intent intent = new Intent(getBaseContext(), ACMusicService.class);
         intent.putExtra("pendingIntent", pendingIntent);
         startService(intent);
     }
-
 
     @Override
     protected void onDestroy() {
@@ -108,11 +108,39 @@ public class NewLeaf extends AppCompatActivity {
         if (pendingIntent != null) {
             alarmManager.cancel(pendingIntent);
             pendingIntent.cancel();
+            pendingIntent = null;
         }
+        Intent intent = new Intent(getBaseContext(), ACMusicService.class);
+        intent.putExtra("pendingIntent", pendingIntent);
+        stopService(intent);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        if (!ACMusicMediaPlayer.isPlaying()) {
+            if (pendingIntent != null) {
+                alarmManager.cancel(pendingIntent);
+                pendingIntent.cancel();
+                pendingIntent = null;
+            }
+            Intent intent = new Intent(getBaseContext(), ACMusicService.class);
+            intent.putExtra("pendingIntent", pendingIntent);
+            stopService(intent);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (pendingIntent == null) {
+            if (!ACMusicMediaPlayer.isPlaying()) {
+                preparations();
+                ACMusicMediaPlayer.pause();
+            }
+            Intent intent = new Intent(getBaseContext(), ACMusicService.class);
+            intent.putExtra("pendingIntent", pendingIntent);
+            startService(intent);
+        }
     }
 }

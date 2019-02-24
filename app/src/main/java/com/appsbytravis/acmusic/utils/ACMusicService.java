@@ -31,11 +31,11 @@ public class ACMusicService extends Service {
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
-        pendingIntent.cancel();
-
+        if (pendingIntent != null) {
+            pendingIntent.cancel();
+        }
         stopSelf();
     }
 }

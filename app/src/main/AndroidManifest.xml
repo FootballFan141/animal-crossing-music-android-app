@@ -48,8 +48,12 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
 
-        <receiver android:name=".utils.ACMusicBroadcastReceiver" />
-        <service android:name=".utils.ACMusicService" />
+        <receiver
+            android:name=".utils.ACMusicBroadcastReceiver"
+            android:exported="false" />
+        <service
+            android:name=".utils.ACMusicService"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -31,8 +31,6 @@ public class ACMusicMediaPlayer {
                 }
             }
         }
-        player.start();
-
         player.setLooping(true);
     }
 
