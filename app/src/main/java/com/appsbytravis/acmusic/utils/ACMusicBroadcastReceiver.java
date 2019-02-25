@@ -35,7 +35,6 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
         NotificationManagerCompat manager = NotificationManagerCompat.from(context);
         Calendar calendar = Calendar.getInstance();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        Intent serviceIntent;
 
         boolean rain = prefs.getBoolean("raining", false);
         boolean snow = prefs.getBoolean("snowing", false);
@@ -106,14 +105,10 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
 
                 changeMusicIntent = new Intent(context, ACMusicBroadcastReceiver.class);
                 changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:GC");
-                pendingIntent = PendingIntent.getBroadcast(context, 0, changeMusicIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                pendingIntent = PendingIntent.getBroadcast(context, 0, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.cancel(pendingIntent);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-
-                serviceIntent = new Intent(context, ACMusicService.class);
-                intent.putExtra("pendingIntent", pendingIntent);
-                context.startService(serviceIntent);
                 break;
             case "ACTION_UPDATE_MUSIC:WWCF":
                 hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -146,14 +141,10 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
 
                 changeMusicIntent = new Intent(context, ACMusicBroadcastReceiver.class);
                 changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:WWCF");
-                pendingIntent = PendingIntent.getBroadcast(context, 0, changeMusicIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                pendingIntent = PendingIntent.getBroadcast(context, 0, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.cancel(pendingIntent);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-
-                serviceIntent = new Intent(context, ACMusicService.class);
-                intent.putExtra("pendingIntent", pendingIntent);
-                context.startService(serviceIntent);
                 break;
             case "ACTION_UPDATE_MUSIC:NL":
                 hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -186,14 +177,10 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
 
                 changeMusicIntent = new Intent(context, ACMusicBroadcastReceiver.class);
                 changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:NL");
-                pendingIntent = PendingIntent.getBroadcast(context, 0, changeMusicIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+                pendingIntent = PendingIntent.getBroadcast(context, 0, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.cancel(pendingIntent);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-
-                serviceIntent = new Intent(context, ACMusicService.class);
-                intent.putExtra("pendingIntent", pendingIntent);
-                context.startService(serviceIntent);
                 break;
         }
     }

@@ -87,7 +87,7 @@ public class Gamecube extends AppCompatActivity {
         Intent changeMusicIntent = new Intent(this, ACMusicBroadcastReceiver.class);
         changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:GC");
         changeMusicIntent.putExtra("file", storage.getFile(file.getPath()).toURI());
-        pendingIntent = PendingIntent.getBroadcast(this, 0, changeMusicIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        pendingIntent = PendingIntent.getBroadcast(this, 0, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
         if (!ACMusicMediaPlayer.isPlaying()) {
