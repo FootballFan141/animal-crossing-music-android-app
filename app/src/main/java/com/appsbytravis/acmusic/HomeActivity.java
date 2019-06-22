@@ -1,6 +1,5 @@
 package com.appsbytravis.acmusic;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -30,6 +29,7 @@ import android.widget.Toast;
 import com.appsbytravis.acmusic.utils.ACMusicBroadcastReceiver;
 import com.appsbytravis.acmusic.utils.AdListeners;
 import com.appsbytravis.acmusic.utils.AssetsInterface;
+import com.appsbytravis.acmusic.utils.Constants;
 import com.appsbytravis.acmusic.utils.ZipTool;
 import com.google.ads.mediation.admob.AdMobAdapter;
 import com.google.android.gms.ads.AdRequest;
@@ -42,41 +42,30 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.snatik.storage.Storage;
 
+import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
+import static com.appsbytravis.acmusic.utils.Constants.CANCEL_DOWNLOAD_REQUESTCODE;
+import static com.appsbytravis.acmusic.utils.Constants.LOG_TAG;
+import static com.appsbytravis.acmusic.utils.Constants.PAUSE_DOWNLOAD_REQUESTCODE;
+import static com.appsbytravis.acmusic.utils.Constants.RESUME_DOWNLOAD_REQUESTCODE;
+
 public class HomeActivity extends AppCompatActivity implements AssetsInterface {
 
-    public static final String TAG = "ACMUSIC";
-
     private static final String ASSETS_PATH = "assets/";
-    private static final int GAMECUBE_FILES = 49;
-    private static final int WWCF_FILES = 72;
-    private static final int NEWLEAF_FILES = 72;
-
-    private static SharedPreferences prefs = null;
+    private static final int GAMECUBE_FILES = Constants.GAMECUBE_FILES;
+    private static final int WWCF_FILES = Constants.WWCF_FILES;
+    private static final int NEWLEAF_FILES = Constants.NEWLEAF_FILES;
+    private static SharedPreferences prefs;
     private Storage storage;
     private String path;
     private HomeActivity instance;
-
-
-    private static final String[] ASSET_FILES = new String[]{
-            "gamecube.zip",
-            "wwcf.zip",
-            "newleaf.zip"
-    };
-
-    private static final String[] ASSET_SIZES = new String[]{
-//            "486.61", // gamecube
-//            "225.59", // wwcf
-//            "245.79"  // newleaf¨
-            "197.47", // gamecube
-            "64.90", // wwcf
-            "74.40"  // newleaf
-
-    };
-
+    private static final String[] ASSET_FILES = Constants.ASSET_FILES;
+    private static final String[] ASSET_SIZES = Constants.ASSET_SIZES;
     private NotificationManagerCompat manager;
     private AdRequest.Builder AdRequestBuilder;
     private InterstitialAd mInterstitialAd;
 
+
+    public static final String TAG = LOG_TAG;
     public Button gamecubeBtn;
     public Button wwcfBtn;
     public Button newleafBtn;
@@ -87,6 +76,9 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     public boolean isPreparing = false;
     public ProgressBar progressBar;
     public Button pauseDownloadBtn;
+
+
+    //    private NotificationCompat.Action[] actions;
 
     public HomeActivity getInstance() {
         if (instance == null) {
@@ -105,7 +97,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
 
         AdView bannerAd = findViewById(R.id.adView);
         progressBar = findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.INVISIBLE);
+//        progressBar.setVisibility(View.INVISIBLE);
         pauseDownloadBtn = findViewById(R.id.pauseDownloadBtn);
         gamecubeBtn = findViewById(R.id.gamecubeBtn);
         wwcfBtn = findViewById(R.id.wwcfBtn);
@@ -138,9 +130,6 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         gamecubeBtn.setOnClickListener(view -> {
             int files = storage.getNestedFiles(path.concat(ASSETS_PATH.concat("gamecube"))).size();
             if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("gamecube")) && files == GAMECUBE_FILES) {
-                if (storage.isFileExist(path.concat(ASSET_FILES[0]))) {
-                    storage.deleteFile(path.concat(ASSET_FILES[0]));
-                }
                 if (isNetworkConnected()) {
                     if (mInterstitialAd.isLoaded()) {
                         mInterstitialAd.setAdListener(new AdListeners(this, "gamecube"));
@@ -154,7 +143,6 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     startActivity(i);
                 }
             } else {
-                storage.deleteDirectory(path.concat(ASSETS_PATH).concat("gamecube"));
                 if (storage.isFileExist(path.concat(ASSET_FILES[0]))) {
                     view.setEnabled(false);
                     wwcfBtn.setEnabled(false);
@@ -162,7 +150,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     extractAssets(ASSET_FILES[0], ASSET_SIZES[0]);
                 } else {
                     if (!isNetworkConnected()) {
-                        Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(R.string.no_internet_msg), Toast.LENGTH_SHORT).show();
                         return;
                     }
                     Snackbar snackbar = createSnackbar(getString(R.string.assets_alert_msg), Snackbar.LENGTH_LONG, "gamecube");
@@ -173,9 +161,6 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         wwcfBtn.setOnClickListener(view -> {
             int files = storage.getNestedFiles(path.concat(ASSETS_PATH.concat("wwcf"))).size();
             if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("wwcf")) && files == WWCF_FILES) {
-                if (storage.isFileExist(path.concat(ASSET_FILES[1]))) {
-                    storage.deleteFile(path.concat(ASSET_FILES[1]));
-                }
                 if (isNetworkConnected()) {
                     if (mInterstitialAd.isLoaded()) {
                         mInterstitialAd.setAdListener(new AdListeners(this, "wwcf"));
@@ -189,7 +174,6 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     startActivity(i);
                 }
             } else {
-                storage.deleteDirectory(path.concat(ASSETS_PATH).concat("wwcf"));
                 if (storage.isFileExist(path.concat(ASSET_FILES[1]))) {
                     view.setEnabled(false);
                     gamecubeBtn.setEnabled(false);
@@ -197,7 +181,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     extractAssets(ASSET_FILES[1], ASSET_SIZES[1]);
                 } else {
                     if (!isNetworkConnected()) {
-                        Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(R.string.no_internet_msg), Toast.LENGTH_SHORT).show();
                         return;
                     }
                     Snackbar snackbar = createSnackbar(getString(R.string.assets_alert_msg), Snackbar.LENGTH_LONG, "wwcf");
@@ -208,9 +192,6 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         newleafBtn.setOnClickListener(view -> {
             int files = storage.getNestedFiles(path.concat(ASSETS_PATH.concat("newleaf"))).size();
             if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("newleaf")) && files == NEWLEAF_FILES) {
-                if (storage.isFileExist(path.concat(ASSET_FILES[2]))) {
-                    storage.deleteFile(path.concat(ASSET_FILES[2]));
-                }
                 if (isNetworkConnected()) {
                     if (mInterstitialAd.isLoaded()) {
                         mInterstitialAd.setAdListener(new AdListeners(this, "newleaf"));
@@ -224,7 +205,6 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     startActivity(i);
                 }
             } else {
-                storage.deleteDirectory(path.concat(ASSETS_PATH).concat("newleaf"));
                 if (storage.isFileExist(path.concat(ASSET_FILES[2]))) {
                     view.setEnabled(false);
                     gamecubeBtn.setEnabled(false);
@@ -232,7 +212,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     extractAssets(ASSET_FILES[2], ASSET_SIZES[2]);
                 } else {
                     if (!isNetworkConnected()) {
-                        Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(R.string.no_internet_msg), Toast.LENGTH_SHORT).show();
                         return;
                     }
                     Snackbar snackbar = createSnackbar(getString(R.string.assets_alert_msg), Snackbar.LENGTH_LONG, "newleaf");
@@ -317,7 +297,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                 if (firebasetask != null) {
                     firebasetask.cancel();
                 }
-                Toast.makeText(this, "Canceling...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Cancelled", Toast.LENGTH_SHORT).show();
                 item.setVisible(false);
                 return true;
         }
@@ -367,7 +347,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     @Override
     public void extractAssets(String filename, String size) {
         if (storage.isFileExist(path.concat(filename)) && storage.getReadableSize(storage.getFile(path.concat(filename))).split(" ")[0].equals(size)) {
-            Toast.makeText(this, "Please wait while the files are prepared. This will only happen once.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Please wait while the files are prepared.", Toast.LENGTH_LONG).show();
             isPreparing = true;
             cancelBtn.setVisible(true);
             if (!storage.isDirectoryExists(path.concat(ASSETS_PATH))) {
@@ -375,8 +355,9 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             }
 
             ZipTool zipTool = new ZipTool(instance);
-            zipTool.ASSET_FILE = filename;
+            ZipTool.ASSET_FILE = "/" + filename;
             zipTool.decompress();
+
         } else {
 
             Snackbar snackbar = Snackbar.make(findViewById(R.id.activity_home), "File corrupt or missing", Snackbar.LENGTH_LONG);
@@ -391,12 +372,15 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     @Override
     public void downloadAssets(String filename, String destinationPath) {
 
-        NotificationCompat.Builder downloadNotification = showNotification("This won't take long. :)");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            manager.notify(R.string.NOTIFICATION_MAIN, downloadNotification.build());
-        } else {
-            manager.notify(R.string.NOTIFICATION_MAIN, downloadNotification.getNotification());
-        }
+        Intent pauseDownloadIntent = new Intent(this, ACMusicBroadcastReceiver.class);
+        pauseDownloadIntent.setAction("ACTION_PAUSE");
+        PendingIntent pauseDownloadPendingIntent =
+                PendingIntent.getBroadcast(this, PAUSE_DOWNLOAD_REQUESTCODE, pauseDownloadIntent, FLAG_CANCEL_CURRENT);
+
+        NotificationCompat.Builder downloadNotification = showNotification("This won't take long. :)")
+                .addAction(android.R.drawable.ic_media_pause, "Pause", pauseDownloadPendingIntent);
+
+        manager.notify(R.string.NOTIFICATION_MAIN, downloadNotification.build());
         if (mInterstitialAd != null) {
             if (mInterstitialAd.isLoaded()) {
                 mInterstitialAd.show();
@@ -420,18 +404,17 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             Intent resumeDownloadIntent = new Intent(this, ACMusicBroadcastReceiver.class);
             resumeDownloadIntent.setAction("ACTION_RESUME");
             PendingIntent resumeDownloadPendingIntent =
-                    PendingIntent.getBroadcast(this, 0, resumeDownloadIntent, 0);
-            NotificationCompat.Builder notification = showNotification("Currently paused.");
-            notification.setSmallIcon(android.R.drawable.stat_sys_download_done);
-            notification.setProgress(100, progress, false);
-            notification.mActions.get(1).title = "Resume";
-            notification.mActions.get(1).actionIntent = resumeDownloadPendingIntent;
-            notification.setContentIntent(resumeDownloadPendingIntent);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                manager.notify(R.string.NOTIFICATION_MAIN, notification.build());
-            } else {
-                manager.notify(R.string.NOTIFICATION_MAIN, notification.getNotification());
-            }
+                    PendingIntent.getBroadcast(this, RESUME_DOWNLOAD_REQUESTCODE, resumeDownloadIntent, FLAG_CANCEL_CURRENT);
+
+            manager.cancel(R.string.NOTIFICATION_MAIN);
+            NotificationCompat.Builder notification;
+            notification = showNotification("Currently paused.")
+                    .setSmallIcon(android.R.drawable.ic_media_pause)
+                    .addAction(android.R.drawable.stat_sys_download_done, "Resume", resumeDownloadPendingIntent)
+                    .setContentIntent(resumeDownloadPendingIntent);
+            manager.notify(R.string.NOTIFICATION_MAIN, notification.build());
+            pauseDownloadBtn.setEnabled(true);
+            pauseDownloadBtn.setText(R.string.resume_download);
         });
         firebasetask.addOnFailureListener(e -> {
             Log.e(TAG, e.getLocalizedMessage());
@@ -483,10 +466,13 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         if (firebasetask != null) {
             if (firebasetask.isPaused()) {
                 firebasetask.resume();
-                return;
+                pauseDownloadBtn.setEnabled(true);
+                pauseDownloadBtn.setText(R.string.pause_download);
+            } else {
+                firebasetask.pause();
+                pauseDownloadBtn.setEnabled(false);
+                pauseDownloadBtn.setText(R.string.resume_download);
             }
-            firebasetask.pause();
-            pauseDownloadBtn.setText(R.string.resume_download);
         }
     }
 
@@ -522,18 +508,17 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         return snackbar;
     }
 
-    private NotificationCompat.Builder showNotification(String content) {
+    @Override
+    public NotificationCompat.Builder showNotification(String content) {
+
         Intent cancelDownloadIntent = new Intent(this, ACMusicBroadcastReceiver.class);
         cancelDownloadIntent.setAction("ACTION_CANCEL");
-        Intent pauseDownloadIntent = new Intent(this, ACMusicBroadcastReceiver.class);
-        pauseDownloadIntent.setAction("ACTION_PAUSE");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            cancelDownloadIntent.putExtra(Notification.EXTRA_NOTIFICATION_ID, 0);
-        }
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            cancelDownloadIntent.putExtra(Notification.EXTRA_NOTIFICATION_ID, 0);
+//        }
         PendingIntent cancelDownloadPendingIntent =
-                PendingIntent.getBroadcast(this, 0, cancelDownloadIntent, 0);
-        PendingIntent pauseDownloadPendingIntent =
-                PendingIntent.getBroadcast(this, 0, pauseDownloadIntent, 0);
+                PendingIntent.getBroadcast(this, CANCEL_DOWNLOAD_REQUESTCODE, cancelDownloadIntent, FLAG_CANCEL_CURRENT);
 
         return new NotificationCompat.Builder(this, getString(R.string.CHANNEL_ID))
                 .setSmallIcon(android.R.drawable.stat_sys_download)
@@ -541,10 +526,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                 .setContentText(content)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setProgress(100, progress, false)
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Cancel", cancelDownloadPendingIntent)
-                .addAction(android.R.drawable.ic_media_pause, "Pause", pauseDownloadPendingIntent)
-                .setContentIntent(cancelDownloadPendingIntent)
-                .setContentIntent(pauseDownloadPendingIntent);
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Cancel", cancelDownloadPendingIntent);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -563,6 +545,10 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     public void prepareInterstitialAd() {
         Bundle extras = new Bundle();
         mInterstitialAd.loadAd(AdRequestBuilder.addNetworkExtrasBundle(AdMobAdapter.class, extras).build());
+    }
+
+    public void showInterstitialAd() {
+
     }
 
     private void initializeAds() {

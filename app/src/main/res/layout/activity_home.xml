@@ -33,12 +33,13 @@
             android:text="@string/new_leaf_btn" />
 
         <include layout="@layout/progressbar" />
+
         <Button
             android:id="@+id/pauseDownloadBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="invisible"
-            android:text="@string/pause_download"/>
+            android:text="@string/pause_download"
+            android:visibility="invisible" />
     </LinearLayout>
 
     <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"

@@ -18,6 +18,10 @@ import com.appsbytravis.acmusic.R;
 import java.io.File;
 import java.util.Calendar;
 
+import static com.appsbytravis.acmusic.utils.Constants.CANCEL_DOWNLOAD_REQUESTCODE;
+import static com.appsbytravis.acmusic.utils.Constants.CHANGE_MUSIC_REQUESTCODE;
+import static com.appsbytravis.acmusic.utils.Constants.PAUSE_DOWNLOAD_REQUESTCODE;
+
 public class ACMusicBroadcastReceiver extends BroadcastReceiver {
 
 
@@ -35,11 +39,28 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
         NotificationManagerCompat manager = NotificationManagerCompat.from(context);
         Calendar calendar = Calendar.getInstance();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        NotificationCompat.Builder builder;
 
         boolean rain = prefs.getBoolean("raining", false);
         boolean snow = prefs.getBoolean("snowing", false);
         boolean normal = prefs.getBoolean("normal", false);
 
+
+        Intent pauseDownloadIntent = new Intent(context, ACMusicBroadcastReceiver.class);
+        pauseDownloadIntent.setAction("ACTION_PAUSE");
+
+        Intent cancelDownloadIntent = new Intent(context, ACMusicBroadcastReceiver.class);
+        cancelDownloadIntent.setAction("ACTION_CANCEL");
+
+        Intent resumeDownloadIntent = new Intent(context, ACMusicBroadcastReceiver.class);
+        resumeDownloadIntent.setAction("ACTION_RESUME");
+
+        PendingIntent cancelDownloadPendingIntent =
+                PendingIntent.getBroadcast(context, CANCEL_DOWNLOAD_REQUESTCODE, cancelDownloadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pauseDownloadPendingIntent =
+                PendingIntent.getBroadcast(context, PAUSE_DOWNLOAD_REQUESTCODE, pauseDownloadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent resumeDownloadPendingIntent =
+                PendingIntent.getBroadcast(context, Constants.RESUME_DOWNLOAD_REQUESTCODE, resumeDownloadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         switch (intent.getAction()) {
             case "ACTION_START":
@@ -51,28 +72,23 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                 break;
             case "ACTION_PAUSE":
                 HomeActivity.firebasetask.pause();
+                manager.cancel(R.string.NOTIFICATION_MAIN);
+                builder = showNotification(context, "Currently paused.")
+                        .setSmallIcon(android.R.drawable.ic_media_pause)
+                        .addAction(android.R.drawable.stat_sys_download_done, "Resume", resumeDownloadPendingIntent)
+                        .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Cancel", cancelDownloadPendingIntent);
+                manager.notify(R.string.NOTIFICATION_MAIN, builder.build());
                 break;
             case "ACTION_RESUME":
                 HomeActivity.firebasetask.resume();
-
-                Intent pauseDownloadIntent = new Intent(context, ACMusicBroadcastReceiver.class);
-                pauseDownloadIntent.setAction("ACTION_PAUSE");
-                Intent cancelDownloadIntent = new Intent(context, ACMusicBroadcastReceiver.class);
-                cancelDownloadIntent.setAction("ACTION_CANCEL");
-                PendingIntent cancelDownloadPendingIntent =
-                        PendingIntent.getBroadcast(context, 0, cancelDownloadIntent, 0);
-                PendingIntent pauseDownloadPendingIntent =
-                        PendingIntent.getBroadcast(context, 0, pauseDownloadIntent, 0);
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(context, context.getString(R.string.CHANNEL_ID));
-                builder.setContentTitle("Downloading assets");
-                builder.setProgress(100, HomeActivity.progress, false);
-                builder.setContentText("This won't take long. :)");
-                builder.setSmallIcon(android.R.drawable.stat_sys_download);
-                builder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Cancel", cancelDownloadPendingIntent);
-                builder.setContentIntent(cancelDownloadPendingIntent);
-                builder.addAction(android.R.drawable.ic_media_pause, "Pause", pauseDownloadPendingIntent);
-                builder.setContentIntent(pauseDownloadPendingIntent);
+                manager.cancel(R.string.NOTIFICATION_MAIN);
+                builder = showNotification(context, "This won't take long. :)")
+                        .setSmallIcon(android.R.drawable.stat_sys_download)
+                        .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Cancel", cancelDownloadPendingIntent)
+                        .addAction(android.R.drawable.ic_media_pause, "Pause", pauseDownloadPendingIntent);
                 manager.notify(R.string.NOTIFICATION_MAIN, builder.build());
+
+//                HomeActivity.pauseDownloadBtn.setText(R.string.pause_download);
                 break;
             case "ACTION_UPDATE_MUSIC:GC":
                 hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -105,7 +121,7 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
 
                 changeMusicIntent = new Intent(context, ACMusicBroadcastReceiver.class);
                 changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:GC");
-                pendingIntent = PendingIntent.getBroadcast(context, 0, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                pendingIntent = PendingIntent.getBroadcast(context, CHANGE_MUSIC_REQUESTCODE, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.cancel(pendingIntent);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
@@ -141,7 +157,7 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
 
                 changeMusicIntent = new Intent(context, ACMusicBroadcastReceiver.class);
                 changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:WWCF");
-                pendingIntent = PendingIntent.getBroadcast(context, 0, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                pendingIntent = PendingIntent.getBroadcast(context, CHANGE_MUSIC_REQUESTCODE, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.cancel(pendingIntent);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
@@ -177,11 +193,20 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
 
                 changeMusicIntent = new Intent(context, ACMusicBroadcastReceiver.class);
                 changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:NL");
-                pendingIntent = PendingIntent.getBroadcast(context, 0, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                pendingIntent = PendingIntent.getBroadcast(context, CHANGE_MUSIC_REQUESTCODE, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 alarmManager.cancel(pendingIntent);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
                 break;
         }
+    }
+
+    public NotificationCompat.Builder showNotification(Context context, String content) {
+
+        return new NotificationCompat.Builder(context, context.getString(R.string.CHANNEL_ID))
+                .setContentTitle("Downloading assets")
+                .setProgress(100, HomeActivity.progress, false)
+                .setContentText(content)
+                .setPriority(NotificationCompat.PRIORITY_LOW);
     }
 }

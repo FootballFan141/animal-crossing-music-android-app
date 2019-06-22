@@ -1,8 +1,10 @@
 package com.appsbytravis.acmusic.utils;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.widget.Toast;
 
 import java.io.FileInputStream;
@@ -43,18 +45,20 @@ public class ACMusicMediaPlayer {
     }
 
     public static void start() {
-        if (player != null) {
-            player.start();
-        }
+        if (player != null) player.start();
     }
 
     public static void pause() {
-        if (player != null) {
-            player.pause();
-        }
+        if (player != null) player.pause();
+
     }
 
     public static boolean isPlaying() {
         return player != null && player.isPlaying();
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private static void fade() {
+        //TODO; Create fade effect at the end of current audio
     }
 }

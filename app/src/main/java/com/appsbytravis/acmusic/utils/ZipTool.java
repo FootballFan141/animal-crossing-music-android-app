@@ -3,9 +3,11 @@ package com.appsbytravis.acmusic.utils;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.appsbytravis.acmusic.HomeActivity;
 import com.snatik.storage.Storage;
+import com.snatik.storage.helpers.SizeUnit;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -18,19 +20,21 @@ import java.nio.channels.FileChannel;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static com.appsbytravis.acmusic.utils.Constants.LOG_TAG;
+
 public class ZipTool {
     private static final int BUFFER_SIZE = 1024;
     private final HomeActivity instance;
     private Storage storage;
     private static String path;
 
-    public String ASSET_FILE = "";
+    public static String ASSET_FILE = "";
     private static final String ASSETS_PATH = "/assets/";
 
     public ZipTool(HomeActivity instance) {
         this.instance = instance;
         storage = new Storage(instance);
-        path = storage.getInternalFilesDirectory() + "/";
+        path = storage.getInternalFilesDirectory();
 
     }
 
@@ -69,16 +73,26 @@ public class ZipTool {
                     if (instance.get().isPreparing) {
                         String filePath = path.concat(ASSETS_PATH).concat(entry.getName());
                         if (!entry.isDirectory()) {
-                            FileOutputStream fos = new FileOutputStream(filePath);
-                            BufferedOutputStream bos = new BufferedOutputStream(fos);
-                            int read;
-                            while ((read = zis.read(bytesIn)) != -1) {
-                                bos.write(bytesIn, 0, read);
-                                publishProgress(String.valueOf(channel.position()), String.valueOf(params[0].length()));
+                            if (!storage.isFileExist(filePath)) {
+                                Log.d(LOG_TAG, "creating file : " + entry.getName());
+                                FileOutputStream fos = new FileOutputStream(filePath);
+                                BufferedOutputStream bos = new BufferedOutputStream(fos);
+                                int read;
+                                while ((read = zis.read(bytesIn)) != -1) {
+                                    bos.write(bytesIn, 0, read);
+                                    publishProgress(String.valueOf(channel.position()), String.valueOf(params[0].length()));
+                                }
+                                fos.close();
+                            } else {
+                                Log.d(LOG_TAG, entry.getName() + " already exists with size " + storage.getSize(storage.getFile(filePath), SizeUnit.B) + " kbs");
+                                continue;
                             }
-                            fos.close();
                         } else {
-                            storage.createDirectory(filePath);
+                            if (!storage.isDirectoryExists(filePath)) {
+                                Log.d(LOG_TAG, filePath + " directory does not exist.. created!");
+                                storage.createDirectory(filePath);
+                            }
+                            continue;
                         }
 
                         zis.closeEntry();
@@ -104,6 +118,19 @@ public class ZipTool {
             instance.get().gamecubeBtn.setEnabled(true);
             instance.get().wwcfBtn.setEnabled(true);
             instance.get().newleafBtn.setEnabled(true);
+
+            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(instance.get().getWindow().getContext());
+            builder.setTitle("Would you like to delete that downloaded file now?");
+            builder.setPositiveButton("Yes", (dialogInterface, i) -> storage.deleteFile(path.concat(ASSET_FILE)));
+            builder.setNegativeButton("Not yet", (dialogInterface, i) -> dialogInterface.dismiss());
+            builder.create();
+            builder.show();
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            Toast.makeText(instance.get().getBaseContext(), "Cancelled file extraction", Toast.LENGTH_SHORT).show();
         }
 
         @Override
