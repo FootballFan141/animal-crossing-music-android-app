@@ -22,7 +22,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 28
         versionCode 8
-        versionName "8.0"
+        versionName "8.1"
         signingConfig signingConfigs.config
     }
     buildTypes {
