@@ -21,7 +21,7 @@ android {
         applicationId "com.appsbytravis.acmusic"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 8
+        versionCode 81
         versionName "8.1"
         signingConfig signingConfigs.config
     }
