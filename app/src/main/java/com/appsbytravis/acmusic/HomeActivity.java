@@ -561,20 +561,27 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
 
     private boolean isNetworkConnected() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        NetworkInfo wifiInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        NetworkInfo dataInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-
-        if (wifiInfo != null) {
-
-            if (wifiInfo.isConnected()) {
-                return wifiInfo.getState().equals(NetworkInfo.State.CONNECTED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            if (networkInfo != null) {
+                return networkInfo.isConnected();
+            } else {
+                return false;
             }
-        } else if (dataInfo != null) {
+        } else {
+            NetworkInfo wifiInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            NetworkInfo dataInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-            if (dataInfo.isConnected()) {
-                return dataInfo.getState().equals(NetworkInfo.State.CONNECTED);
+            if (wifiInfo != null || dataInfo != null) {
+
+                if (wifiInfo.isConnected()) {
+                    return wifiInfo.getState().equals(NetworkInfo.State.CONNECTED);
+                } else if (dataInfo != null) {
+                    if (dataInfo.isConnected()) {
+                        return dataInfo.getState().equals(NetworkInfo.State.CONNECTED);
+                    }
+                }
             }
-
         }
         return false;
     }
