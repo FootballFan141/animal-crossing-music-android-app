@@ -10,8 +10,8 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.2'
-        classpath 'com.google.gms:google-services:4.3.0'
+        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.google.gms:google-services:4.2.0'
         classpath fileTree(include: ['*.jar'], dir: 'app/libs')
 
         // Uncomment the following classpath to use if you haven't added the patched oss-licenses-plugin.jar (to fix depreciation warnings) to the libs dir

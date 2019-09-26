@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/animal-crossing-music github.iml" filepath="$PROJECT_DIR$/animal-crossing-music github.iml" />
+      <module fileurl="file://$PROJECT_DIR$/animal-crossing-music-android-app.iml" filepath="$PROJECT_DIR$/animal-crossing-music-android-app.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

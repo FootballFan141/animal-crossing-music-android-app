@@ -14,6 +14,10 @@ public class ACMusicMediaPlayer {
 
     private static MediaPlayer player;
 
+    public static MediaPlayer getMediaPlayer() {
+        return player;
+    }
+
     public static void play(Context context, Uri file) {
         if (player == null) {
             player = MediaPlayer.create(context, file);
@@ -39,6 +43,7 @@ public class ACMusicMediaPlayer {
     public static void stop() {
         if (player != null) {
             player.stop();
+            player.reset();
             player.release();
             player = null;
         }
@@ -60,5 +65,15 @@ public class ACMusicMediaPlayer {
     @TargetApi(Build.VERSION_CODES.O)
     private static void fade() {
         //TODO; Create fade effect at the end of current audio
+    }
+
+    public static void adjustVolume(boolean focused) {
+        if (player != null) {
+            if (!focused) {
+                player.setVolume(0.2f, 0.2f);
+            } else {
+                player.setVolume(1.0f, 1.0f);
+            }
+        }
     }
 }

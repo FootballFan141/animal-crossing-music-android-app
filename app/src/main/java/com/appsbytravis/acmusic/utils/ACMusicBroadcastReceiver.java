@@ -91,6 +91,7 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
 //                HomeActivity.pauseDownloadBtn.setText(R.string.pause_download);
                 break;
             case "ACTION_UPDATE_MUSIC:GC":
+                Log.d(HomeActivity.TAG, "ACTION_UPDATE_MUSIC:GC");
                 hour = calendar.get(Calendar.HOUR_OF_DAY);
                 calendar.set(calendar.get(Calendar.YEAR),
                         calendar.get(Calendar.MONTH),
@@ -98,7 +99,6 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                         calendar.get(Calendar.HOUR_OF_DAY), 0, 0);
                 calendar.set(Calendar.MILLISECOND, 0);
                 calendar.add(Calendar.HOUR_OF_DAY, 1);
-                Log.d(HomeActivity.TAG, "ACTION_UPDATE_MUSIC:GC");
                 ASSETS_PATH = "/assets/gamecube/";
                 music = new ACMusic(context, ASSETS_PATH);
 
@@ -127,6 +127,7 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
                 break;
             case "ACTION_UPDATE_MUSIC:WWCF":
+                Log.d(HomeActivity.TAG, "ACTION_UPDATE_MUSIC:WWCF");
                 hour = calendar.get(Calendar.HOUR_OF_DAY);
                 calendar.set(calendar.get(Calendar.YEAR),
                         calendar.get(Calendar.MONTH),
@@ -134,7 +135,6 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                         calendar.get(Calendar.HOUR_OF_DAY), 0, 0);
                 calendar.set(Calendar.MILLISECOND, 0);
                 calendar.add(Calendar.HOUR_OF_DAY, 1);
-                Log.d(HomeActivity.TAG, "ACTION_UPDATE_MUSIC:WWCF");
                 ASSETS_PATH = "/assets/wwcf/";
                 music = new ACMusic(context, ASSETS_PATH);
 
@@ -163,6 +163,7 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
                 break;
             case "ACTION_UPDATE_MUSIC:NL":
+                Log.d(HomeActivity.TAG, "ACTION_UPDATE_MUSIC:NL");
                 hour = calendar.get(Calendar.HOUR_OF_DAY);
                 calendar.set(calendar.get(Calendar.YEAR),
                         calendar.get(Calendar.MONTH),
@@ -170,7 +171,6 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                         calendar.get(Calendar.HOUR_OF_DAY), 0, 0);
                 calendar.set(Calendar.MILLISECOND, 0);
                 calendar.add(Calendar.HOUR_OF_DAY, 1);
-                Log.d(HomeActivity.TAG, "ACTION_UPDATE_MUSIC:NL");
                 ASSETS_PATH = "/assets/newleaf/";
                 music = new ACMusic(context, ASSETS_PATH);
 
