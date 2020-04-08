@@ -6,6 +6,7 @@ import android.util.Log;
 import com.appsbytravis.acmusic.Gamecube;
 import com.appsbytravis.acmusic.HomeActivity;
 import com.appsbytravis.acmusic.NewLeaf;
+import com.appsbytravis.acmusic.PocketCamp;
 import com.appsbytravis.acmusic.WildWorldCityFolk;
 import com.google.android.gms.ads.AdListener;
 
@@ -38,6 +39,9 @@ public class AdListeners extends AdListener {
             case "newleaf":
                 i = new Intent(instance, NewLeaf.class);
                 break;
+            case "pocketcamp":
+                i = new Intent(instance, PocketCamp.class);
+                break;
             default:
                 return;
         }
@@ -68,9 +72,13 @@ public class AdListeners extends AdListener {
             case "newleaf":
                 i = new Intent(instance, NewLeaf.class);
                 break;
+            case "pocketcamp":
+                i = new Intent(instance, PocketCamp.class);
+                break;
             default:
                 return;
         }
         instance.startActivity(i);
+        instance = null;
     }
 }

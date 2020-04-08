@@ -7,15 +7,16 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-    android:allowBackup="false"
-    android:icon="@mipmap/ic_launcher"
-    android:label="@string/APP_NAME"
-    tools:ignore="GoogleAppIndexingWarning">
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/APP_NAME"
+        android:supportsRtl="false"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
-        android:name=".HomeActivity"
-        android:launchMode="singleTop"
-        android:screenOrientation="portrait"
-        android:theme="@style/AppTheme.Launcher">
+            android:name=".HomeActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Launcher">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,36 +26,40 @@
         </activity>
 
         <activity
-        android:name=".Gamecube"
-        android:screenOrientation="portrait"
-        android:theme="@style/MusicPlayerScreen" />
+            android:name=".Gamecube"
+            android:screenOrientation="portrait"
+            android:theme="@style/MusicPlayerScreen" />
         <activity
-        android:name=".WildWorldCityFolk"
-        android:screenOrientation="portrait"
-        android:theme="@style/MusicPlayerScreen" />
+            android:name=".WildWorldCityFolk"
+            android:screenOrientation="portrait"
+            android:theme="@style/MusicPlayerScreen" />
         <activity
-        android:name=".NewLeaf"
-        android:screenOrientation="portrait"
-        android:theme="@style/MusicPlayerScreen" />
+            android:name=".NewLeaf"
+            android:screenOrientation="portrait"
+            android:theme="@style/MusicPlayerScreen" />
         <activity
-        android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
-        android:screenOrientation="portrait"
-        android:theme="@style/AppTheme" />
+            android:name=".PocketCamp"
+            android:screenOrientation="portrait"
+            android:theme="@style/MusicPlayerScreen" />
         <activity
-        android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
-        android:screenOrientation="portrait"
-        android:theme="@style/AppTheme" />
+            android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
 
         <meta-data
-        android:name="com.google.android.gms.ads.APPLICATION_ID"
-        android:value="@string/ADMOB_ID" />
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/ADMOB_ID" />
 
         <receiver
-        android:name=".utils.ACMusicBroadcastReceiver"
-        android:exported="false" />
+            android:name=".utils.ACMusicBroadcastReceiver"
+            android:exported="false" />
         <service
-        android:name=".utils.ACMusicService"
-        android:exported="false" />
+            android:name=".utils.ACMusicService"
+            android:exported="false" />
     </application>
 
 

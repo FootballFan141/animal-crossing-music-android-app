@@ -11,6 +11,7 @@ public class ACMusicService extends Service {
 
     private PendingIntent pendingIntent;
     private AlarmManager alarmManager;
+    private PendingIntent pendingIntentFadeMusic;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -20,6 +21,7 @@ public class ACMusicService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         pendingIntent = intent.getParcelableExtra("pendingIntent");
+        pendingIntentFadeMusic = intent.getParcelableExtra("pendingIntentFadeMusic");
         alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
 
         return START_REDELIVER_INTENT;
@@ -31,22 +33,30 @@ public class ACMusicService extends Service {
         if (pendingIntent != null) {
             alarmManager.cancel(pendingIntent);
             pendingIntent.cancel();
-            alarmManager = null;
-            pendingIntent = null;
         }
+        if (pendingIntentFadeMusic != null) {
+            alarmManager.cancel(pendingIntentFadeMusic);
+            pendingIntentFadeMusic.cancel();
+        }
+        alarmManager = null;
+        pendingIntent = null;
     }
 
-//    @Override
-//    public boolean stopService(Intent name) {
-//        super.stopService(name);
-//        if (pendingIntent != null) {
-//            alarmManager.cancel(pendingIntent);
-//            pendingIntent.cancel();
-//            alarmManager = null;
-//            pendingIntent = null;
-//        }
-//        return true;
-//    }
+    @Override
+    public boolean stopService(Intent name) {
+        super.stopService(name);
+        if (pendingIntent != null) {
+            alarmManager.cancel(pendingIntent);
+            pendingIntent.cancel();
+        }
+        if (pendingIntentFadeMusic != null) {
+            alarmManager.cancel(pendingIntentFadeMusic);
+            pendingIntentFadeMusic.cancel();
+        }
+        alarmManager = null;
+        pendingIntent = null;
+        return true;
+    }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
@@ -54,9 +64,13 @@ public class ACMusicService extends Service {
         if (pendingIntent != null) {
             alarmManager.cancel(pendingIntent);
             pendingIntent.cancel();
-            alarmManager = null;
-            pendingIntent = null;
         }
+        if (pendingIntentFadeMusic != null) {
+            alarmManager.cancel(pendingIntentFadeMusic);
+            pendingIntentFadeMusic.cancel();
+        }
+        alarmManager = null;
+        pendingIntent = null;
         stopSelf();
     }
 }

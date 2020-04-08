@@ -12,9 +12,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.appsbytravis.acmusic.utils.ACMusic;
 import com.appsbytravis.acmusic.utils.ACMusicBroadcastReceiver;
@@ -26,6 +27,7 @@ import java.io.File;
 import java.util.Calendar;
 
 import static com.appsbytravis.acmusic.utils.Constants.CHANGE_MUSIC_REQUESTCODE;
+import static com.appsbytravis.acmusic.utils.Constants.FADE_MUSIC_REQUESTCODE;
 
 public class WildWorldCityFolk extends AppCompatActivity {
     private static final String ASSETS_PATH = "/assets/wwcf/";
@@ -38,20 +40,24 @@ public class WildWorldCityFolk extends AppCompatActivity {
     private boolean audioAuthorized = false;
     private Button pauseBtn;
     private boolean isPaused = false;
+    private PendingIntent pendingIntentFadeMusic;
+    private AlarmManager alarmManagerFadeMusic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wild_world_city_folk);
 
-        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
         focusChangeListener = focusChange -> {
             switch (focusChange) {
                 case AudioManager.AUDIOFOCUS_GAIN:
                     audioAuthorized = true;
-                    ACMusicMediaPlayer.adjustVolume(true);
-                    ACMusicMediaPlayer.start();
+                    if (!isPaused) {
+                        ACMusicMediaPlayer.adjustVolume(true);
+                        ACMusicMediaPlayer.start();
+                    }
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS:
                     audioAuthorized = false;
@@ -112,10 +118,10 @@ public class WildWorldCityFolk extends AppCompatActivity {
         pauseBtn = findViewById(R.id.PauseBtn);
         pauseBtn.setOnClickListener(v -> {
             if (ACMusicMediaPlayer.isPlaying()) {
-                pauseBtn.setText("Resume");
+                pauseBtn.setText(getString(R.string.resume_music));
                 ACMusicMediaPlayer.pause();
             } else {
-                pauseBtn.setText("Pause");
+                pauseBtn.setText(getString(R.string.pause_music));
                 ACMusicMediaPlayer.start();
             }
         });
@@ -124,7 +130,6 @@ public class WildWorldCityFolk extends AppCompatActivity {
         Calendar calendar = setCalendar();
         File file = getMusic(calendar.get(Calendar.HOUR_OF_DAY));
 
-//        TODO: Fix music updating every hour, problem is it random starts even when app is not running.
         calendar.add(Calendar.HOUR_OF_DAY, 1);
         Storage storage = new Storage(this);
         long timeInMillis = calendar.getTimeInMillis();
@@ -134,10 +139,26 @@ public class WildWorldCityFolk extends AppCompatActivity {
         pendingIntent = PendingIntent.getBroadcast(this, CHANGE_MUSIC_REQUESTCODE, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+        } else {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+        }
+
+        Calendar calendarFadeMusic = setCalendar();
+        int minute = calendarFadeMusic.get(Calendar.MINUTE);
+        int seconds = calendarFadeMusic.get(Calendar.SECOND);
+        boolean shouldfade = (minute == 59) && (seconds >= 55);
 
         if (!ACMusicMediaPlayer.isPlaying() && audioAuthorized) {
             ACMusicMediaPlayer.play(this, Uri.parse(file.getPath()));
+            if (shouldfade) {
+                ACMusicMediaPlayer.fadeout();
+            } else {
+                ACMusicMediaPlayer.getMediaPlayer().setVolume(1.0f, 1.0f);
+            }
             if (isPaused) {
                 ACMusicMediaPlayer.pause();
             } else {
@@ -147,8 +168,26 @@ public class WildWorldCityFolk extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Another app is possibly playing music.", Toast.LENGTH_SHORT).show();
         }
 
+        calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY));
+        calendarFadeMusic.add(Calendar.SECOND, -5);
+
+        long timeInMillisFadeMusic = calendarFadeMusic.getTimeInMillis();
+
+        Intent fadeMusicIntent = new Intent(this, ACMusicBroadcastReceiver.class);
+        fadeMusicIntent.setAction("ACTION_FADEOUT");
+        pendingIntentFadeMusic = PendingIntent.getBroadcast(this, FADE_MUSIC_REQUESTCODE, fadeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManagerFadeMusic = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        alarmManagerFadeMusic.cancel(pendingIntentFadeMusic);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManagerFadeMusic.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillisFadeMusic, pendingIntentFadeMusic);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            alarmManagerFadeMusic.setExact(AlarmManager.RTC_WAKEUP, timeInMillisFadeMusic, pendingIntentFadeMusic);
+        } else {
+            alarmManagerFadeMusic.set(AlarmManager.RTC_WAKEUP, timeInMillisFadeMusic, pendingIntentFadeMusic);
+        }
         Intent intent = new Intent(getApplicationContext(), ACMusicService.class);
         intent.putExtra("pendingIntent", pendingIntent);
+        intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
         startService(intent);
     }
 
@@ -195,11 +234,17 @@ public class WildWorldCityFolk extends AppCompatActivity {
         ACMusicMediaPlayer.stop();
         Intent intent = new Intent(getBaseContext(), ACMusicService.class);
         intent.putExtra("pendingIntent", pendingIntent);
+        intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
         stopService(intent);
         if (pendingIntent != null) {
             alarmManager.cancel(pendingIntent);
             pendingIntent.cancel();
             pendingIntent = null;
+        }
+        if (pendingIntentFadeMusic != null) {
+            alarmManagerFadeMusic.cancel(pendingIntentFadeMusic);
+            pendingIntentFadeMusic.cancel();
+            pendingIntentFadeMusic = null;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             audioManager.abandonAudioFocusRequest(afrBuilder);
@@ -214,11 +259,17 @@ public class WildWorldCityFolk extends AppCompatActivity {
         if (!ACMusicMediaPlayer.isPlaying()) {
             Intent intent = new Intent(getBaseContext(), ACMusicService.class);
             intent.putExtra("pendingIntent", pendingIntent);
+            intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
             stopService(intent);
             if (pendingIntent != null) {
                 alarmManager.cancel(pendingIntent);
                 pendingIntent.cancel();
                 pendingIntent = null;
+            }
+            if (pendingIntentFadeMusic != null) {
+                alarmManagerFadeMusic.cancel(pendingIntentFadeMusic);
+                pendingIntentFadeMusic.cancel();
+                pendingIntentFadeMusic = null;
             }
         }
     }
@@ -236,12 +287,13 @@ public class WildWorldCityFolk extends AppCompatActivity {
         if (pendingIntent == null) {
             if (!ACMusicMediaPlayer.isPlaying()) {
                 ACMusicMediaPlayer.pause();
-                pauseBtn.setText("Resume");
+                pauseBtn.setText(getString(R.string.resume_music));
                 isPaused = true;
             }
             preparations();
             Intent intent = new Intent(getBaseContext(), ACMusicService.class);
             intent.putExtra("pendingIntent", pendingIntent);
+            intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
             startService(intent);
         }
     }
@@ -249,9 +301,22 @@ public class WildWorldCityFolk extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Intent intent = new Intent(getApplicationContext(), ACMusicService.class);
-        intent.putExtra("pendingIntent", pendingIntent);
-        stopService(intent);
+        if (!ACMusicMediaPlayer.isPlaying()) {
+            Intent intent = new Intent(getBaseContext(), ACMusicService.class);
+            intent.putExtra("pendingIntent", pendingIntent);
+            intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
+            stopService(intent);
+            if (pendingIntent != null) {
+                alarmManager.cancel(pendingIntent);
+                pendingIntent.cancel();
+                pendingIntent = null;
+            }
+            if (pendingIntentFadeMusic != null) {
+                alarmManagerFadeMusic.cancel(pendingIntentFadeMusic);
+                pendingIntentFadeMusic.cancel();
+                pendingIntentFadeMusic = null;
+            }
+        }
     }
 
     @Override
@@ -259,6 +324,7 @@ public class WildWorldCityFolk extends AppCompatActivity {
         super.onResume();
         Intent intent = new Intent(getApplicationContext(), ACMusicService.class);
         intent.putExtra("pendingIntent", pendingIntent);
+        intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
         startService(intent);
     }
 }

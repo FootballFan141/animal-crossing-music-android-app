@@ -15,4 +15,4 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
--dontwarn "com.google.android.gms.oss.licenses.plugin**"
+-dontwarn com.google.android.gms.oss.licenses.plugin**

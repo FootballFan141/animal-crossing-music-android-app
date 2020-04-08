@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/animal-crossing-music-android-app.iml" filepath="$PROJECT_DIR$/animal-crossing-music-android-app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/animal-crossing-music-android-app.iml" filepath="$PROJECT_DIR$/animal-crossing-music-android-app.iml" group="animal-crossing-music-android-app" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="animal-crossing-music-android-app/app" />
     </modules>
   </component>
 </project>
