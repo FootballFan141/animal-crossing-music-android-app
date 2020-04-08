@@ -2,7 +2,6 @@
     <string name="ADMOB_ID">ca-app-pub-9407401103908784~7452165562</string>
     <string name="ADMOB_BANNER">ca-app-pub-9407401103908784/1136919092</string>
     <string name="ADMOB_INTERSTITIAL">ca-app-pub-9407401103908784/7779893654</string>
-    <string name="publisherIDs">pub-9407401103908784</string>
 
     <string name="APP_NAME">AC Music</string>
 
@@ -18,8 +17,17 @@
     <string name="wild_world_city_folk_btn">Wild World | CIty Folk</string>
     <string name="new_leaf_btn">New Leaf</string>
     <string name="gamecube_btn">Gamecube</string>
+    <string name="pocket_camp_btn">Pocket Camp</string>
     <string name="resume_download">Resume Download</string>
     <string name="pause_download">Pause Download</string>
+    <string name="resume_music">Resume</string>
+    <string name="pause_music">Pause</string>
 
     <string name="no_internet_msg">No internet connection</string>
+    <string name="menuTitle">Weather</string>
+    <string name="cancelMenuItem">Cancel</string>
+    <string name="clear_cloudyMenuItem">Clear/Cloudy</string>
+    <string name="rain_stormMenuItem">Rain/Storm</string>
+    <string name="snowMenuItem">Snow</string>
+    <string name="licensesMenuItem">Licenses</string>
 </resources>

@@ -29,8 +29,8 @@ import java.util.Calendar;
 import static com.appsbytravis.acmusic.utils.Constants.CHANGE_MUSIC_REQUESTCODE;
 import static com.appsbytravis.acmusic.utils.Constants.FADE_MUSIC_REQUESTCODE;
 
-public class NewLeaf extends AppCompatActivity {
-    private static final String ASSETS_PATH = "/assets/newleaf/";
+public class PocketCamp extends AppCompatActivity {
+    private static final String ASSETS_PATH = "/assets/pocketcamp/";
     private PendingIntent pendingIntent;
     private AlarmManager alarmManager;
     private SharedPreferences prefs;
@@ -40,13 +40,13 @@ public class NewLeaf extends AppCompatActivity {
     private boolean audioAuthorized = false;
     private Button pauseBtn;
     private boolean isPaused = false;
-    private PendingIntent pendingIntentFadeMusic;
     private AlarmManager alarmManagerFadeMusic;
+    private PendingIntent pendingIntentFadeMusic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_leaf);
+        setContentView(R.layout.activity_pocket_camp);
 
         audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 
@@ -79,7 +79,6 @@ public class NewLeaf extends AppCompatActivity {
                     break;
             }
         };
-
         audioFocus();
         preparations();
     }
@@ -120,27 +119,43 @@ public class NewLeaf extends AppCompatActivity {
         pauseBtn.setOnClickListener(v -> {
             if (ACMusicMediaPlayer.isPlaying()) {
                 pauseBtn.setText(getString(R.string.resume_music));
-                isPaused = true;
                 ACMusicMediaPlayer.pause();
             } else {
                 pauseBtn.setText(getString(R.string.pause_music));
-                isPaused = false;
                 ACMusicMediaPlayer.start();
             }
         });
-
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        Calendar calendar = setCalendar();
-        File file = getMusic(calendar.get(Calendar.HOUR_OF_DAY));
 
-        calendar.add(Calendar.HOUR_OF_DAY, 1);
+        Calendar calendar = setCalendar();
+
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+
+        File file = getMusic(hour);
+
+        boolean morning = (hour >= 6 && hour < 12);
+        boolean day = (hour >= 12 && hour < 16);
+        boolean evening = (hour >= 16 && hour < 20);
+        boolean night = (hour >= 20 || hour < 6);
+        if (morning) {
+            calendar.set(Calendar.HOUR_OF_DAY, 12);
+        } else if (day) {
+            calendar.set(Calendar.HOUR_OF_DAY, 16);
+        } else if (evening) {
+            calendar.set(Calendar.HOUR_OF_DAY, 20);
+        } else if (night) {
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            calendar.set(Calendar.HOUR_OF_DAY, 6);
+        }
+
         Storage storage = new Storage(this);
         long timeInMillis = calendar.getTimeInMillis();
         Intent changeMusicIntent = new Intent(this, ACMusicBroadcastReceiver.class);
-        changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:NL");
+        changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:PocketCamp");
         changeMusicIntent.putExtra("file", storage.getFile(file.getPath()).toURI());
         pendingIntent = PendingIntent.getBroadcast(this, CHANGE_MUSIC_REQUESTCODE, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(pendingIntent);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -170,7 +185,18 @@ public class NewLeaf extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Another app is possibly playing music.", Toast.LENGTH_SHORT).show();
         }
 
-        calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY));
+        if (morning) {
+            calendarFadeMusic.set(Calendar.HOUR_OF_DAY, 12);
+        } else if (day) {
+            calendarFadeMusic.set(Calendar.HOUR_OF_DAY, 16);
+        } else if (evening) {
+            calendarFadeMusic.set(Calendar.HOUR_OF_DAY, 20);
+        } else if (night) {
+            if (calendarFadeMusic.get(Calendar.AM_PM) == Calendar.PM) {
+                calendarFadeMusic.add(Calendar.DAY_OF_MONTH, 1);
+            }
+            calendarFadeMusic.set(Calendar.HOUR_OF_DAY, 6);
+        }
         calendarFadeMusic.add(Calendar.SECOND, -5);
 
         long timeInMillisFadeMusic = calendarFadeMusic.getTimeInMillis();
@@ -187,10 +213,14 @@ public class NewLeaf extends AppCompatActivity {
         } else {
             alarmManagerFadeMusic.set(AlarmManager.RTC_WAKEUP, timeInMillisFadeMusic, pendingIntentFadeMusic);
         }
-        Intent intent = new Intent(getBaseContext(), ACMusicService.class);
+
+
+        Intent intent = new Intent(getApplicationContext(), ACMusicService.class);
         intent.putExtra("pendingIntent", pendingIntent);
         intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
+
         startService(intent);
+
     }
 
     private File getMusic(int hour) {
@@ -198,24 +228,11 @@ public class NewLeaf extends AppCompatActivity {
         ACMusic music = new ACMusic(getApplicationContext(), ASSETS_PATH);
         music.setWindow(this);
 
-        boolean rain = prefs.getBoolean("raining", false);
-        boolean snow = prefs.getBoolean("snowing", false);
-        boolean normal = prefs.getBoolean("normal", false);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             music.bgChange(hour);
         }
         File file;
-        if (normal) {
-            file = music.normal(hour);
-        } else if (rain) {
-            file = music.raining(hour);
-        } else if (snow) {
-            file = music.snowing(hour);
-        } else {
-            prefs.edit().putBoolean("normal", true).apply();
-            file = music.normal(hour);
-        }
+        file = music.pocketcamp(hour);
         return file;
     }
 
@@ -236,7 +253,6 @@ public class NewLeaf extends AppCompatActivity {
         ACMusicMediaPlayer.stop();
         Intent intent = new Intent(getBaseContext(), ACMusicService.class);
         intent.putExtra("pendingIntent", pendingIntent);
-        intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
         stopService(intent);
         if (pendingIntent != null) {
             alarmManager.cancel(pendingIntent);
@@ -261,7 +277,6 @@ public class NewLeaf extends AppCompatActivity {
         if (!ACMusicMediaPlayer.isPlaying()) {
             Intent intent = new Intent(getBaseContext(), ACMusicService.class);
             intent.putExtra("pendingIntent", pendingIntent);
-            intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
             stopService(intent);
             if (pendingIntent != null) {
                 alarmManager.cancel(pendingIntent);
@@ -293,9 +308,9 @@ public class NewLeaf extends AppCompatActivity {
                 isPaused = true;
             }
             preparations();
-            Intent intent = new Intent(getBaseContext(), ACMusicService.class);
+            Intent intent = new Intent(this, ACMusicService.class);
             intent.putExtra("pendingIntent", pendingIntent);
-            intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
+            intent.putExtra("pendingIntent", pendingIntentFadeMusic);
             startService(intent);
         }
     }
@@ -306,7 +321,6 @@ public class NewLeaf extends AppCompatActivity {
         if (!ACMusicMediaPlayer.isPlaying()) {
             Intent intent = new Intent(getBaseContext(), ACMusicService.class);
             intent.putExtra("pendingIntent", pendingIntent);
-            intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
             stopService(intent);
             if (pendingIntent != null) {
                 alarmManager.cancel(pendingIntent);

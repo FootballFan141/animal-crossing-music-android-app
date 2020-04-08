@@ -11,12 +11,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.RequiresApi;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,6 +19,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.appsbytravis.acmusic.utils.ACMusicBroadcastReceiver;
 import com.appsbytravis.acmusic.utils.AdListeners;
@@ -37,6 +37,7 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -46,6 +47,7 @@ import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
 import static com.appsbytravis.acmusic.utils.Constants.CANCEL_DOWNLOAD_REQUESTCODE;
 import static com.appsbytravis.acmusic.utils.Constants.LOG_TAG;
 import static com.appsbytravis.acmusic.utils.Constants.PAUSE_DOWNLOAD_REQUESTCODE;
+import static com.appsbytravis.acmusic.utils.Constants.POCKET_CAMP_FILES;
 import static com.appsbytravis.acmusic.utils.Constants.RESUME_DOWNLOAD_REQUESTCODE;
 
 public class HomeActivity extends AppCompatActivity implements AssetsInterface {
@@ -69,6 +71,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     public Button gamecubeBtn;
     public Button wwcfBtn;
     public Button newleafBtn;
+    public Button pocketcampBtn;
     public boolean prepareFinished;
     public MenuItem cancelBtn;
     public static FileDownloadTask firebasetask;
@@ -102,6 +105,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         gamecubeBtn = findViewById(R.id.gamecubeBtn);
         wwcfBtn = findViewById(R.id.wwcfBtn);
         newleafBtn = findViewById(R.id.newleafBtn);
+        pocketcampBtn = findViewById(R.id.pocketcampBtn);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         manager = NotificationManagerCompat.from(this);
@@ -147,6 +151,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     view.setEnabled(false);
                     wwcfBtn.setEnabled(false);
                     newleafBtn.setEnabled(false);
+                    pocketcampBtn.setEnabled(false);
                     extractAssets(ASSET_FILES[0], ASSET_SIZES[0]);
                 } else {
                     if (!isNetworkConnected()) {
@@ -178,6 +183,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     view.setEnabled(false);
                     gamecubeBtn.setEnabled(false);
                     newleafBtn.setEnabled(false);
+                    pocketcampBtn.setEnabled(false);
                     extractAssets(ASSET_FILES[1], ASSET_SIZES[1]);
                 } else {
                     if (!isNetworkConnected()) {
@@ -209,6 +215,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     view.setEnabled(false);
                     gamecubeBtn.setEnabled(false);
                     wwcfBtn.setEnabled(false);
+                    pocketcampBtn.setEnabled(false);
                     extractAssets(ASSET_FILES[2], ASSET_SIZES[2]);
                 } else {
                     if (!isNetworkConnected()) {
@@ -216,6 +223,38 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                         return;
                     }
                     Snackbar snackbar = createSnackbar(getString(R.string.assets_alert_msg), Snackbar.LENGTH_LONG, "newleaf");
+                    snackbar.show();
+                }
+            }
+        });
+        pocketcampBtn.setOnClickListener(view -> {
+            int files = storage.getNestedFiles(path.concat(ASSETS_PATH.concat("pocketcamp"))).size();
+            if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("pocketcamp")) && files == POCKET_CAMP_FILES) {
+                if (isNetworkConnected()) {
+                    if (mInterstitialAd.isLoaded()) {
+                        mInterstitialAd.setAdListener(new AdListeners(this, "pocketcamp"));
+                        mInterstitialAd.show();
+                    } else {
+                        Intent i = new Intent(HomeActivity.this, PocketCamp.class);
+                        startActivity(i);
+                    }
+                } else {
+                    Intent i = new Intent(HomeActivity.this, PocketCamp.class);
+                    startActivity(i);
+                }
+            } else {
+                if (storage.isFileExist(path.concat(ASSET_FILES[3]))) {
+                    view.setEnabled(false);
+                    gamecubeBtn.setEnabled(false);
+                    wwcfBtn.setEnabled(false);
+                    newleafBtn.setEnabled(false);
+                    extractAssets(ASSET_FILES[3], ASSET_SIZES[3]);
+                } else {
+                    if (!isNetworkConnected()) {
+                        Toast.makeText(this, getString(R.string.no_internet_msg), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Snackbar snackbar = createSnackbar(getString(R.string.assets_alert_msg), Snackbar.LENGTH_LONG, "pocketcamp");
                     snackbar.show();
                 }
             }
@@ -232,6 +271,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
+
         boolean raining = prefs.getBoolean("raining", false);
         boolean snowing = prefs.getBoolean("snowing", false);
         boolean normal = prefs.getBoolean("normal", false);
@@ -311,7 +351,9 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         isPreparing = false;
         if (firebasetask != null) {
             firebasetask.cancel();
+            firebasetask = null;
         }
+        instance = null;
     }
 
     @Override
@@ -344,6 +386,15 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         downloadAssets(ASSET_FILES[2], path.concat(ASSET_FILES[2]));
     }
 
+    private void pocketcampAssets() {
+        gamecubeBtn.setEnabled(false);
+        wwcfBtn.setEnabled(false);
+        newleafBtn.setEnabled(false);
+        pocketcampBtn.setEnabled(false);
+        cancelBtn.setVisible(true);
+        downloadAssets(ASSET_FILES[3], path.concat(ASSET_FILES[3]));
+    }
+
     @Override
     public void extractAssets(String filename, String size) {
         if (storage.isFileExist(path.concat(filename)) && storage.getReadableSize(storage.getFile(path.concat(filename))).split(" ")[0].equals(size)) {
@@ -366,6 +417,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             gamecubeBtn.setEnabled(true);
             wwcfBtn.setEnabled(true);
             newleafBtn.setEnabled(true);
+            pocketcampBtn.setEnabled(true);
         }
     }
 
@@ -425,6 +477,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             gamecubeBtn.setEnabled(true);
             wwcfBtn.setEnabled(true);
             newleafBtn.setEnabled(true);
+            pocketcampBtn.setEnabled(true);
             progressBar.setVisibility(View.INVISIBLE);
             pauseDownloadBtn.setVisibility(View.INVISIBLE);
             cancelBtn.setVisible(false);
@@ -437,6 +490,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             gamecubeBtn.setEnabled(true);
             wwcfBtn.setEnabled(true);
             newleafBtn.setEnabled(true);
+            pocketcampBtn.setEnabled(true);
             progressBar.setVisibility(View.INVISIBLE);
             pauseDownloadBtn.setVisibility(View.INVISIBLE);
             cancelBtn.setVisible(false);
@@ -446,6 +500,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             gamecubeBtn.setEnabled(true);
             wwcfBtn.setEnabled(true);
             newleafBtn.setEnabled(true);
+            pocketcampBtn.setEnabled(true);
             pauseDownloadBtn.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.INVISIBLE);
             cancelBtn.setVisible(false);
@@ -455,6 +510,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             gamecubeBtn.setEnabled(true);
             wwcfBtn.setEnabled(true);
             newleafBtn.setEnabled(true);
+            pocketcampBtn.setEnabled(true);
             pauseDownloadBtn.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.INVISIBLE);
             cancelBtn.setVisible(false);
@@ -493,6 +549,9 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                 case "newleaf":
                     newLeafAssets();
                     break;
+                case "pocketcamp":
+                    pocketcampAssets();
+                    break;
             }
         });
         builder.create();
@@ -514,9 +573,6 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         Intent cancelDownloadIntent = new Intent(this, ACMusicBroadcastReceiver.class);
         cancelDownloadIntent.setAction("ACTION_CANCEL");
 
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            cancelDownloadIntent.putExtra(Notification.EXTRA_NOTIFICATION_ID, 0);
-//        }
         PendingIntent cancelDownloadPendingIntent =
                 PendingIntent.getBroadcast(this, CANCEL_DOWNLOAD_REQUESTCODE, cancelDownloadIntent, FLAG_CANCEL_CURRENT);
 
@@ -553,14 +609,14 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
 
     private void initializeAds() {
         MobileAds.initialize(this, getString(R.string.ADMOB_ID));
-        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd = new InterstitialAd(getApplicationContext());
         mInterstitialAd.setAdUnitId(getString(R.string.ADMOB_INTERSTITIAL));
-        mInterstitialAd.setAdListener(new AdListeners(this, ""));
+//        mInterstitialAd.setAdListener(new AdListeners(this, ""));
         AdRequestBuilder = new AdRequest.Builder();
     }
 
     private boolean isNetworkConnected() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(CONNECTIVITY_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
             if (networkInfo != null) {

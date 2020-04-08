@@ -118,6 +118,7 @@ public class ZipTool {
             instance.get().gamecubeBtn.setEnabled(true);
             instance.get().wwcfBtn.setEnabled(true);
             instance.get().newleafBtn.setEnabled(true);
+            instance.get().pocketcampBtn.setEnabled(true);
 
             android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(instance.get().getWindow().getContext());
             builder.setTitle("Would you like to delete that downloaded file now?");

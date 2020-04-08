@@ -1,7 +1,8 @@
 package com.appsbytravis.acmusic.utils;
 
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
+
+import com.google.android.material.snackbar.Snackbar;
 
 public interface AssetsInterface {
 

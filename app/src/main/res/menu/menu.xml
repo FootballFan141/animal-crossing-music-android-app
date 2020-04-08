@@ -3,27 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menuTitle"
-        android:title="Weather"
+        android:title="@string/menuTitle"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/menuCancel"
-        android:title="Cancel"
+        android:title="@string/cancelMenuItem"
         android:visible="false"
         app:showAsAction="always" />
     <item
         android:id="@+id/normal"
         android:checkable="true"
         android:checked="true"
-        android:title="Clear/Cloudy" />
+        android:title="@string/clear_cloudyMenuItem" />
     <item
         android:id="@+id/raining"
         android:checkable="true"
-        android:title="Rain/Storm" />
+        android:title="@string/rain_stormMenuItem" />
     <item
         android:id="@+id/snowing"
         android:checkable="true"
-        android:title="Snow" />
+        android:title="@string/snowMenuItem" />
     <item
         android:id="@+id/licenses"
-        android:title="Licenses" />
+        android:title="@string/licensesMenuItem" />
 </menu>

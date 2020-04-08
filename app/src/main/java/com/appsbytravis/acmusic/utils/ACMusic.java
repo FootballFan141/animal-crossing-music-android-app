@@ -3,8 +3,9 @@ package com.appsbytravis.acmusic.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.view.Window;
+
+import androidx.annotation.RequiresApi;
 
 import com.appsbytravis.acmusic.R;
 import com.snatik.storage.Storage;
@@ -264,6 +265,24 @@ public class ACMusic {
             case 23:
                 file = storage.getFile(path.concat(ASSETS_PATH).concat("pm/").concat("snow/").concat("11pm.mp3"));
                 break;
+        }
+        return file;
+    }
+
+    public File pocketcamp(int hour) {
+        File file = null;
+        boolean morning = (hour >= 6 && hour < 12);
+        boolean day = (hour >= 12 && hour < 16);
+        boolean evening = (hour >= 16 && hour < 20);
+        boolean night = (hour >= 20 || hour < 6);
+        if (morning) {
+            file = storage.getFile(path.concat(ASSETS_PATH).concat("morning.mp3"));
+        } else if (day) {
+            file = storage.getFile(path.concat(ASSETS_PATH).concat("day.mp3"));
+        } else if (evening) {
+            file = storage.getFile(path.concat(ASSETS_PATH).concat("evening.mp3"));
+        } else if (night) {
+            file = storage.getFile(path.concat(ASSETS_PATH).concat("night.mp3"));
         }
         return file;
     }

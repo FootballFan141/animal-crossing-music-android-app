@@ -1,10 +1,9 @@
 package com.appsbytravis.acmusic.utils;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Build;
+import android.os.Handler;
 import android.widget.Toast;
 
 import java.io.FileInputStream;
@@ -62,9 +61,56 @@ public class ACMusicMediaPlayer {
         return player != null && player.isPlaying();
     }
 
-    @TargetApi(Build.VERSION_CODES.O)
-    private static void fade() {
+    public static void fadeout() {
         //TODO; Create fade effect at the end of current audio
+
+        final Handler handler = new Handler();
+        final Runnable runnable = new Runnable() {
+            int counter = 1;
+
+            @Override
+            public void run() {
+                if (counter == 50) {
+                    player.setVolume(0, 0);
+                    handler.removeCallbacks(this);
+                    return;
+                }
+                int maxVolume = 50;
+                float log1 = (float) (Math.log(maxVolume - counter) / Math.log(maxVolume));
+                player.setVolume(1 - log1, 1 - log1);
+                log1 = (float) (Math.log(maxVolume - (50 - counter)) / Math.log(maxVolume));
+                player.setVolume((1 - log1), 1 - log1);
+                counter++;
+                handler.postDelayed(this, 100);
+            }
+        };
+        runnable.run();
+    }
+
+    static void fadein() {
+        //TODO; Create fade effect at the end of current audio
+
+        final Handler handler = new Handler();
+        final Runnable runnable = new Runnable() {
+            int counter = 1;
+
+            @Override
+            public void run() {
+                if (counter == 50) {
+                    player.setVolume(1.0f, 1.0f);
+                    handler.removeCallbacks(this);
+                    return;
+                }
+                int maxVolume = 50;
+                float log1 = (float) (Math.log(maxVolume + counter) / Math.log(maxVolume));
+                player.setVolume(0.0f + log1, 0.0f + log1);
+                log1 = (float) (Math.log(maxVolume - (50 - counter)) / Math.log(maxVolume));
+                player.setVolume((0.0f + log1), 0.0f + log1);
+                counter++;
+                handler.postDelayed(this, 100);
+            }
+        };
+        runnable.run();
     }
 
     public static void adjustVolume(boolean focused) {
