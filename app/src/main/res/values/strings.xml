@@ -30,4 +30,5 @@
     <string name="rain_stormMenuItem">Rain/Storm</string>
     <string name="snowMenuItem">Snow</string>
     <string name="licensesMenuItem">Licenses</string>
+    <string name="new_horizons_btn">New Horizons</string>
 </resources>

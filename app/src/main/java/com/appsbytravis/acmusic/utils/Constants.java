@@ -11,14 +11,16 @@ public interface Constants {
             "gamecube.zip",
             "wwcf.zip",
             "newleaf.zip",
-            "pocketcamp.zip"
+            "pocketcamp.zip",
+            "newhorizons.zip"
     };
 
     String[] ASSET_SIZES = new String[]{
             "197.47", // gamecube
             "64.90", // wwcf
             "74.40",  // newleaf
-            "33.57"  // pocketcamp
+            "33.57" , // pocketcamp
+            "88.15"  // newhorizons
 
     };
 
@@ -26,6 +28,7 @@ public interface Constants {
     int WWCF_FILES = 72;
     int NEWLEAF_FILES = 72;
     int POCKET_CAMP_FILES = 4;
+    int NEWHORIZONS_FILES = 76;
 
     String LOG_TAG = "ACMUSIC";
 

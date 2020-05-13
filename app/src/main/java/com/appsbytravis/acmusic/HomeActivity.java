@@ -46,6 +46,7 @@ import com.snatik.storage.Storage;
 import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
 import static com.appsbytravis.acmusic.utils.Constants.CANCEL_DOWNLOAD_REQUESTCODE;
 import static com.appsbytravis.acmusic.utils.Constants.LOG_TAG;
+import static com.appsbytravis.acmusic.utils.Constants.NEWHORIZONS_FILES;
 import static com.appsbytravis.acmusic.utils.Constants.PAUSE_DOWNLOAD_REQUESTCODE;
 import static com.appsbytravis.acmusic.utils.Constants.POCKET_CAMP_FILES;
 import static com.appsbytravis.acmusic.utils.Constants.RESUME_DOWNLOAD_REQUESTCODE;
@@ -72,6 +73,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     public Button wwcfBtn;
     public Button newleafBtn;
     public Button pocketcampBtn;
+    public Button newhorizonsBtn;
     public boolean prepareFinished;
     public MenuItem cancelBtn;
     public static FileDownloadTask firebasetask;
@@ -106,6 +108,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         wwcfBtn = findViewById(R.id.wwcfBtn);
         newleafBtn = findViewById(R.id.newleafBtn);
         pocketcampBtn = findViewById(R.id.pocketcampBtn);
+        newhorizonsBtn = findViewById(R.id.newhorizonsBtn);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         manager = NotificationManagerCompat.from(this);
@@ -152,6 +155,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     wwcfBtn.setEnabled(false);
                     newleafBtn.setEnabled(false);
                     pocketcampBtn.setEnabled(false);
+                    newhorizonsBtn.setEnabled(false);
                     extractAssets(ASSET_FILES[0], ASSET_SIZES[0]);
                 } else {
                     if (!isNetworkConnected()) {
@@ -184,6 +188,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     gamecubeBtn.setEnabled(false);
                     newleafBtn.setEnabled(false);
                     pocketcampBtn.setEnabled(false);
+                    newhorizonsBtn.setEnabled(false);
                     extractAssets(ASSET_FILES[1], ASSET_SIZES[1]);
                 } else {
                     if (!isNetworkConnected()) {
@@ -216,6 +221,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     gamecubeBtn.setEnabled(false);
                     wwcfBtn.setEnabled(false);
                     pocketcampBtn.setEnabled(false);
+                    newhorizonsBtn.setEnabled(false);
                     extractAssets(ASSET_FILES[2], ASSET_SIZES[2]);
                 } else {
                     if (!isNetworkConnected()) {
@@ -248,6 +254,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     gamecubeBtn.setEnabled(false);
                     wwcfBtn.setEnabled(false);
                     newleafBtn.setEnabled(false);
+                    newhorizonsBtn.setEnabled(false);
                     extractAssets(ASSET_FILES[3], ASSET_SIZES[3]);
                 } else {
                     if (!isNetworkConnected()) {
@@ -255,6 +262,39 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                         return;
                     }
                     Snackbar snackbar = createSnackbar(getString(R.string.assets_alert_msg), Snackbar.LENGTH_LONG, "pocketcamp");
+                    snackbar.show();
+                }
+            }
+        });
+        newhorizonsBtn.setOnClickListener(view -> {
+            int files = storage.getNestedFiles(path.concat(ASSETS_PATH.concat("newhorizons"))).size();
+            if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("newhorizons")) && files == NEWHORIZONS_FILES) {
+                if (isNetworkConnected()) {
+                    if (mInterstitialAd.isLoaded()) {
+                        mInterstitialAd.setAdListener(new AdListeners(this, "newhorizons"));
+                        mInterstitialAd.show();
+                    } else {
+                        Intent i = new Intent(HomeActivity.this, NewHorizons.class);
+                        startActivity(i);
+                    }
+                } else {
+                    Intent i = new Intent(HomeActivity.this, NewHorizons.class);
+                    startActivity(i);
+                }
+            } else {
+                if (storage.isFileExist(path.concat(ASSET_FILES[4]))) {
+                    view.setEnabled(false);
+                    gamecubeBtn.setEnabled(false);
+                    wwcfBtn.setEnabled(false);
+                    newleafBtn.setEnabled(false);
+                    pocketcampBtn.setEnabled(false);
+                    extractAssets(ASSET_FILES[4], ASSET_SIZES[4]);
+                } else {
+                    if (!isNetworkConnected()) {
+                        Toast.makeText(this, getString(R.string.no_internet_msg), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    Snackbar snackbar = createSnackbar(getString(R.string.assets_alert_msg), Snackbar.LENGTH_LONG, "newhorizons");
                     snackbar.show();
                 }
             }
@@ -366,6 +406,8 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         gamecubeBtn.setEnabled(false);
         wwcfBtn.setEnabled(false);
         newleafBtn.setEnabled(false);
+        pocketcampBtn.setEnabled(false);
+        newhorizonsBtn.setEnabled(false);
         cancelBtn.setVisible(true);
         downloadAssets(ASSET_FILES[0], path.concat(ASSET_FILES[0]));
     }
@@ -374,6 +416,8 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         gamecubeBtn.setEnabled(false);
         wwcfBtn.setEnabled(false);
         newleafBtn.setEnabled(false);
+        pocketcampBtn.setEnabled(false);
+        newhorizonsBtn.setEnabled(false);
         cancelBtn.setVisible(true);
         downloadAssets(ASSET_FILES[1], path.concat(ASSET_FILES[1]));
     }
@@ -382,6 +426,8 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         gamecubeBtn.setEnabled(false);
         wwcfBtn.setEnabled(false);
         newleafBtn.setEnabled(false);
+        pocketcampBtn.setEnabled(false);
+        newhorizonsBtn.setEnabled(false);
         cancelBtn.setVisible(true);
         downloadAssets(ASSET_FILES[2], path.concat(ASSET_FILES[2]));
     }
@@ -391,8 +437,19 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         wwcfBtn.setEnabled(false);
         newleafBtn.setEnabled(false);
         pocketcampBtn.setEnabled(false);
+        newhorizonsBtn.setEnabled(false);
         cancelBtn.setVisible(true);
         downloadAssets(ASSET_FILES[3], path.concat(ASSET_FILES[3]));
+    }
+
+    private void newhorizonsAssets() {
+        gamecubeBtn.setEnabled(false);
+        wwcfBtn.setEnabled(false);
+        newleafBtn.setEnabled(false);
+        pocketcampBtn.setEnabled(false);
+        newhorizonsBtn.setEnabled(false);
+        cancelBtn.setVisible(true);
+        downloadAssets(ASSET_FILES[4], path.concat(ASSET_FILES[4]));
     }
 
     @Override
@@ -418,6 +475,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             wwcfBtn.setEnabled(true);
             newleafBtn.setEnabled(true);
             pocketcampBtn.setEnabled(true);
+            newhorizonsBtn.setEnabled(true);
         }
     }
 
@@ -478,6 +536,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             wwcfBtn.setEnabled(true);
             newleafBtn.setEnabled(true);
             pocketcampBtn.setEnabled(true);
+            newhorizonsBtn.setEnabled(true);
             progressBar.setVisibility(View.INVISIBLE);
             pauseDownloadBtn.setVisibility(View.INVISIBLE);
             cancelBtn.setVisible(false);
@@ -491,6 +550,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             wwcfBtn.setEnabled(true);
             newleafBtn.setEnabled(true);
             pocketcampBtn.setEnabled(true);
+            newhorizonsBtn.setEnabled(true);
             progressBar.setVisibility(View.INVISIBLE);
             pauseDownloadBtn.setVisibility(View.INVISIBLE);
             cancelBtn.setVisible(false);
@@ -501,6 +561,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             wwcfBtn.setEnabled(true);
             newleafBtn.setEnabled(true);
             pocketcampBtn.setEnabled(true);
+            newhorizonsBtn.setEnabled(true);
             pauseDownloadBtn.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.INVISIBLE);
             cancelBtn.setVisible(false);
@@ -511,6 +572,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             wwcfBtn.setEnabled(true);
             newleafBtn.setEnabled(true);
             pocketcampBtn.setEnabled(true);
+            newhorizonsBtn.setEnabled(true);
             pauseDownloadBtn.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.INVISIBLE);
             cancelBtn.setVisible(false);
@@ -551,6 +613,9 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
                     break;
                 case "pocketcamp":
                     pocketcampAssets();
+                    break;
+                case "newhorizons":
+                    newhorizonsAssets();
                     break;
             }
         });

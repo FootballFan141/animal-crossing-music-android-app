@@ -119,13 +119,15 @@ public class ZipTool {
             instance.get().wwcfBtn.setEnabled(true);
             instance.get().newleafBtn.setEnabled(true);
             instance.get().pocketcampBtn.setEnabled(true);
-
-            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(instance.get().getWindow().getContext());
-            builder.setTitle("Would you like to delete that downloaded file now?");
-            builder.setPositiveButton("Yes", (dialogInterface, i) -> storage.deleteFile(path.concat(ASSET_FILE)));
-            builder.setNegativeButton("Not yet", (dialogInterface, i) -> dialogInterface.dismiss());
-            builder.create();
-            builder.show();
+            instance.get().newhorizonsBtn.setEnabled(true);
+            if (aBoolean) {
+                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(instance.get().getWindow().getContext());
+                builder.setTitle("Would you like to delete that downloaded file now?");
+                builder.setPositiveButton("Yes", (dialogInterface, i) -> storage.deleteFile(path.concat(ASSET_FILE)));
+                builder.setNegativeButton("Not yet", (dialogInterface, i) -> dialogInterface.dismiss());
+                builder.create();
+                builder.show();
+            }
         }
 
         @Override

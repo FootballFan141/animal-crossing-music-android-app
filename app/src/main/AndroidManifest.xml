@@ -38,6 +38,10 @@
             android:screenOrientation="portrait"
             android:theme="@style/MusicPlayerScreen" />
         <activity
+            android:name=".NewHorizons"
+            android:screenOrientation="portrait"
+            android:theme="@style/MusicPlayerScreen" />
+        <activity
             android:name=".PocketCamp"
             android:screenOrientation="portrait"
             android:theme="@style/MusicPlayerScreen" />

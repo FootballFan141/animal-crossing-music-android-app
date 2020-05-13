@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.appsbytravis.acmusic.Gamecube;
 import com.appsbytravis.acmusic.HomeActivity;
+import com.appsbytravis.acmusic.NewHorizons;
 import com.appsbytravis.acmusic.NewLeaf;
 import com.appsbytravis.acmusic.PocketCamp;
 import com.appsbytravis.acmusic.WildWorldCityFolk;
@@ -42,6 +43,9 @@ public class AdListeners extends AdListener {
             case "pocketcamp":
                 i = new Intent(instance, PocketCamp.class);
                 break;
+            case "newhorizons":
+                i = new Intent(instance, NewHorizons.class);
+                break;
             default:
                 return;
         }
@@ -74,6 +78,9 @@ public class AdListeners extends AdListener {
                 break;
             case "pocketcamp":
                 i = new Intent(instance, PocketCamp.class);
+                break;
+            case "newhorizons":
+                i = new Intent(instance, NewHorizons.class);
                 break;
             default:
                 return;

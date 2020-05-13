@@ -287,6 +287,69 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                     alarmManagerFadeMusic.set(AlarmManager.RTC_WAKEUP, timeInMillisFadeMusic, pendingIntentFadeMusic);
                 }
                 break;
+            case "ACTION_UPDATE_MUSIC:NH":
+                Log.d(HomeActivity.TAG, "ACTION_UPDATE_MUSIC:NH");
+                hour = calendar.get(Calendar.HOUR_OF_DAY);
+                calendar.set(calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH),
+                        calendar.get(Calendar.HOUR_OF_DAY), 0, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+                calendar.add(Calendar.HOUR_OF_DAY, 1);
+                ASSETS_PATH = "/assets/newhorizons/";
+                music = new ACMusic(context, ASSETS_PATH);
+
+                //TODO: Update "background image" when music changes based on time of day. Look at com.appsbytravis.acmusic.utils.ACMusic, the bgChange method
+
+                file = null;
+                if (normal) {
+                    file = music.normal(hour);
+                } else if (rain) {
+                    file = music.raining(hour);
+                } else if (snow) {
+                    file = music.snowing(hour);
+                }
+                path = file.getPath();
+                if (ACMusicMediaPlayer.isPlaying()) {
+                    ACMusicMediaPlayer.stop();
+                }
+                ACMusicMediaPlayer.play(context, Uri.parse(path));
+                ACMusicMediaPlayer.fadein();
+                ACMusicMediaPlayer.start();
+
+                timeInMillis = calendar.getTimeInMillis();
+
+                changeMusicIntent = new Intent(context, ACMusicBroadcastReceiver.class);
+                changeMusicIntent.setAction("ACTION_UPDATE_MUSIC:NH");
+                pendingIntent = PendingIntent.getBroadcast(context, CHANGE_MUSIC_REQUESTCODE, changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                alarmManager.cancel(pendingIntent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+                } else {
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+                }
+                calendarFadeMusic = Calendar.getInstance();
+                calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY));
+                calendarFadeMusic.add(Calendar.SECOND, -5);
+
+                timeInMillisFadeMusic = calendarFadeMusic.getTimeInMillis();
+
+                fadeMusicIntent = new Intent(context, ACMusicBroadcastReceiver.class);
+                fadeMusicIntent.setAction("ACTION_FADEOUT");
+                pendingIntentFadeMusic = PendingIntent.getBroadcast(context, FADE_MUSIC_REQUESTCODE, fadeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                alarmManagerFadeMusic = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                alarmManagerFadeMusic.cancel(pendingIntentFadeMusic);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManagerFadeMusic.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillisFadeMusic, pendingIntentFadeMusic);
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    alarmManagerFadeMusic.setExact(AlarmManager.RTC_WAKEUP, timeInMillisFadeMusic, pendingIntentFadeMusic);
+                } else {
+                    alarmManagerFadeMusic.set(AlarmManager.RTC_WAKEUP, timeInMillisFadeMusic, pendingIntentFadeMusic);
+                }
+                break;
             case "ACTION_UPDATE_MUSIC:PocketCamp":
                 Log.d(HomeActivity.TAG, "ACTION_UPDATE_MUSIC:PocketCamp");
                 hour = calendar.get(Calendar.HOUR_OF_DAY);

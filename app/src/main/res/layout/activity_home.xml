@@ -38,6 +38,12 @@
             android:layout_height="wrap_content"
             android:text="@string/pocket_camp_btn" />
 
+        <Button
+            android:id="@+id/newhorizonsBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/new_horizons_btn" />
+
         <include layout="@layout/progressbar" />
 
         <Button
