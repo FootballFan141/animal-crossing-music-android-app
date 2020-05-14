@@ -164,7 +164,7 @@ public class PocketCamp extends AppCompatActivity {
             alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
         }
 
-        Calendar calendarFadeMusic = setCalendar();
+        Calendar calendarFadeMusic = getCalendar();
         int minute = calendarFadeMusic.get(Calendar.MINUTE);
         int seconds = calendarFadeMusic.get(Calendar.SECOND);
         boolean shouldfade = (minute == 59) && (seconds >= 55);
@@ -197,6 +197,7 @@ public class PocketCamp extends AppCompatActivity {
             }
             calendarFadeMusic.set(Calendar.HOUR_OF_DAY, 6);
         }
+        calendarFadeMusic.set(Calendar.MILLISECOND, 0);
         calendarFadeMusic.add(Calendar.SECOND, -5);
 
         long timeInMillisFadeMusic = calendarFadeMusic.getTimeInMillis();
@@ -237,7 +238,7 @@ public class PocketCamp extends AppCompatActivity {
     }
 
     private Calendar setCalendar() {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = getCalendar();
 
         calendar.set(calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -245,6 +246,10 @@ public class PocketCamp extends AppCompatActivity {
                 calendar.get(Calendar.HOUR_OF_DAY), 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar;
+    }
+
+    private Calendar getCalendar() {
+        return Calendar.getInstance();
     }
 
     @Override

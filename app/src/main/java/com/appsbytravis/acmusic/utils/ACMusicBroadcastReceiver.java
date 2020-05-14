@@ -20,10 +20,8 @@ import com.appsbytravis.acmusic.R;
 import java.io.File;
 import java.util.Calendar;
 
-import static com.appsbytravis.acmusic.utils.Constants.CANCEL_DOWNLOAD_REQUESTCODE;
 import static com.appsbytravis.acmusic.utils.Constants.CHANGE_MUSIC_REQUESTCODE;
 import static com.appsbytravis.acmusic.utils.Constants.FADE_MUSIC_REQUESTCODE;
-import static com.appsbytravis.acmusic.utils.Constants.PAUSE_DOWNLOAD_REQUESTCODE;
 
 public class ACMusicBroadcastReceiver extends BroadcastReceiver {
 
@@ -63,40 +61,38 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
         Intent resumeDownloadIntent = new Intent(context, ACMusicBroadcastReceiver.class);
         resumeDownloadIntent.setAction("ACTION_RESUME");
 
-        PendingIntent cancelDownloadPendingIntent =
-                PendingIntent.getBroadcast(context, CANCEL_DOWNLOAD_REQUESTCODE, cancelDownloadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        PendingIntent pauseDownloadPendingIntent =
-                PendingIntent.getBroadcast(context, PAUSE_DOWNLOAD_REQUESTCODE, pauseDownloadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        PendingIntent resumeDownloadPendingIntent =
-                PendingIntent.getBroadcast(context, Constants.RESUME_DOWNLOAD_REQUESTCODE, resumeDownloadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+//        PendingIntent cancelDownloadPendingIntent =
+//                PendingIntent.getBroadcast(context, CANCEL_DOWNLOAD_REQUESTCODE, cancelDownloadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+//        PendingIntent pauseDownloadPendingIntent =
+//                PendingIntent.getBroadcast(context, PAUSE_DOWNLOAD_REQUESTCODE, pauseDownloadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+//        PendingIntent resumeDownloadPendingIntent =
+//                PendingIntent.getBroadcast(context, Constants.RESUME_DOWNLOAD_REQUESTCODE, resumeDownloadIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         switch (intent.getAction()) {
             case "ACTION_START":
 
                 break;
             case "ACTION_CANCEL":
-                manager.cancel(R.string.NOTIFICATION_MAIN);
+//                manager.cancel(R.string.NOTIFICATION_MAIN);
                 HomeActivity.firebasetask.cancel();
                 break;
             case "ACTION_PAUSE":
                 HomeActivity.firebasetask.pause();
-                manager.cancel(R.string.NOTIFICATION_MAIN);
-                builder = showNotification(context, "Currently paused.")
-                        .setSmallIcon(android.R.drawable.ic_media_pause)
-                        .addAction(android.R.drawable.stat_sys_download_done, "Resume", resumeDownloadPendingIntent)
-                        .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Cancel", cancelDownloadPendingIntent);
-                manager.notify(R.string.NOTIFICATION_MAIN, builder.build());
+//                manager.cancel(R.string.NOTIFICATION_MAIN);
+//                builder = showNotification(context, "Currently paused.")
+//                        .setSmallIcon(android.R.drawable.ic_media_pause)
+//                        .addAction(android.R.drawable.stat_sys_download_done, "Resume", resumeDownloadPendingIntent)
+//                        .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Cancel", cancelDownloadPendingIntent);
+//                manager.notify(R.string.NOTIFICATION_MAIN, builder.build());
                 break;
             case "ACTION_RESUME":
                 HomeActivity.firebasetask.resume();
-                manager.cancel(R.string.NOTIFICATION_MAIN);
-                builder = showNotification(context, "This won't take long. :)")
-                        .setSmallIcon(android.R.drawable.stat_sys_download)
-                        .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Cancel", cancelDownloadPendingIntent)
-                        .addAction(android.R.drawable.ic_media_pause, "Pause", pauseDownloadPendingIntent);
-                manager.notify(R.string.NOTIFICATION_MAIN, builder.build());
-
-//                HomeActivity.pauseDownloadBtn.setText(R.string.pause_download);
+//                manager.cancel(R.string.NOTIFICATION_MAIN);
+//                builder = showNotification(context, "This won't take long. :)")
+//                        .setSmallIcon(android.R.drawable.stat_sys_download)
+//                        .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Cancel", cancelDownloadPendingIntent)
+//                        .addAction(android.R.drawable.ic_media_pause, "Pause", pauseDownloadPendingIntent);
+//                manager.notify(R.string.NOTIFICATION_MAIN, builder.build());
                 break;
             case "ACTION_UPDATE_MUSIC:GC":
                 Log.d(HomeActivity.TAG, "ACTION_UPDATE_MUSIC:GC");
@@ -143,9 +139,10 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                     alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
                 }
                 calendarFadeMusic = Calendar.getInstance();
-                calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY));
-                calendarFadeMusic.add(Calendar.SECOND, -5);
-
+                calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendarFadeMusic.get(Calendar.HOUR_OF_DAY));
+                calendarFadeMusic.set(Calendar.MINUTE, 59);
+                calendarFadeMusic.set(Calendar.SECOND, 55);
+                calendarFadeMusic.set(Calendar.MILLISECOND, 0);
                 timeInMillisFadeMusic = calendarFadeMusic.getTimeInMillis();
 
                 fadeMusicIntent = new Intent(context, ACMusicBroadcastReceiver.class);
@@ -206,9 +203,10 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                     alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
                 }
                 calendarFadeMusic = Calendar.getInstance();
-                calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY));
-                calendarFadeMusic.add(Calendar.SECOND, -5);
-
+                calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendarFadeMusic.get(Calendar.HOUR_OF_DAY));
+                calendarFadeMusic.set(Calendar.MINUTE, 59);
+                calendarFadeMusic.set(Calendar.SECOND, 55);
+                calendarFadeMusic.set(Calendar.MILLISECOND, 0);
                 timeInMillisFadeMusic = calendarFadeMusic.getTimeInMillis();
 
                 fadeMusicIntent = new Intent(context, ACMusicBroadcastReceiver.class);
@@ -269,9 +267,10 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                     alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
                 }
                 calendarFadeMusic = Calendar.getInstance();
-                calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY));
-                calendarFadeMusic.add(Calendar.SECOND, -5);
-
+                calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendarFadeMusic.get(Calendar.HOUR_OF_DAY));
+                calendarFadeMusic.set(Calendar.MINUTE, 59);
+                calendarFadeMusic.set(Calendar.SECOND, 55);
+                calendarFadeMusic.set(Calendar.MILLISECOND, 0);
                 timeInMillisFadeMusic = calendarFadeMusic.getTimeInMillis();
 
                 fadeMusicIntent = new Intent(context, ACMusicBroadcastReceiver.class);
@@ -332,9 +331,10 @@ public class ACMusicBroadcastReceiver extends BroadcastReceiver {
                     alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
                 }
                 calendarFadeMusic = Calendar.getInstance();
-                calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY));
-                calendarFadeMusic.add(Calendar.SECOND, -5);
-
+                calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendarFadeMusic.get(Calendar.HOUR_OF_DAY));
+                calendarFadeMusic.set(Calendar.MINUTE, 59);
+                calendarFadeMusic.set(Calendar.SECOND, 55);
+                calendarFadeMusic.set(Calendar.MILLISECOND, 0);
                 timeInMillisFadeMusic = calendarFadeMusic.getTimeInMillis();
 
                 fadeMusicIntent = new Intent(context, ACMusicBroadcastReceiver.class);

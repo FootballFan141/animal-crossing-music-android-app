@@ -1,8 +1,5 @@
 package com.appsbytravis.acmusic;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -20,13 +17,9 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 
-import com.appsbytravis.acmusic.utils.ACMusicBroadcastReceiver;
 import com.appsbytravis.acmusic.utils.AdListeners;
 import com.appsbytravis.acmusic.utils.AssetsInterface;
 import com.appsbytravis.acmusic.utils.Constants;
@@ -37,19 +30,16 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.snatik.storage.Storage;
 
-import static android.app.PendingIntent.FLAG_CANCEL_CURRENT;
-import static com.appsbytravis.acmusic.utils.Constants.CANCEL_DOWNLOAD_REQUESTCODE;
 import static com.appsbytravis.acmusic.utils.Constants.LOG_TAG;
 import static com.appsbytravis.acmusic.utils.Constants.NEWHORIZONS_FILES;
-import static com.appsbytravis.acmusic.utils.Constants.PAUSE_DOWNLOAD_REQUESTCODE;
 import static com.appsbytravis.acmusic.utils.Constants.POCKET_CAMP_FILES;
-import static com.appsbytravis.acmusic.utils.Constants.RESUME_DOWNLOAD_REQUESTCODE;
 
 public class HomeActivity extends AppCompatActivity implements AssetsInterface {
 
@@ -63,7 +53,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     private HomeActivity instance;
     private static final String[] ASSET_FILES = Constants.ASSET_FILES;
     private static final String[] ASSET_SIZES = Constants.ASSET_SIZES;
-    private NotificationManagerCompat manager;
+    //    private NotificationManagerCompat manager;
     private AdRequest.Builder AdRequestBuilder;
     private InterstitialAd mInterstitialAd;
 
@@ -102,7 +92,6 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
 
         AdView bannerAd = findViewById(R.id.adView);
         progressBar = findViewById(R.id.progressBar);
-//        progressBar.setVisibility(View.INVISIBLE);
         pauseDownloadBtn = findViewById(R.id.pauseDownloadBtn);
         gamecubeBtn = findViewById(R.id.gamecubeBtn);
         wwcfBtn = findViewById(R.id.wwcfBtn);
@@ -111,7 +100,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         newhorizonsBtn = findViewById(R.id.newhorizonsBtn);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        manager = NotificationManagerCompat.from(this);
+//        manager = NotificationManagerCompat.from(this);
         storage = new Storage(this);
         path = storage.getInternalFilesDirectory() + "/";
 
@@ -128,9 +117,9 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             bannerAd.setVisibility(View.GONE);
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createNotificationChannel();
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            createNotificationChannel();
+//        }
 
         pauseDownloadBtn.setOnClickListener(view -> pauseDownload());
 
@@ -482,21 +471,21 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     @Override
     public void downloadAssets(String filename, String destinationPath) {
 
-        Intent pauseDownloadIntent = new Intent(this, ACMusicBroadcastReceiver.class);
-        pauseDownloadIntent.setAction("ACTION_PAUSE");
-        PendingIntent pauseDownloadPendingIntent =
-                PendingIntent.getBroadcast(this, PAUSE_DOWNLOAD_REQUESTCODE, pauseDownloadIntent, FLAG_CANCEL_CURRENT);
+//        Intent pauseDownloadIntent = new Intent(this, ACMusicBroadcastReceiver.class);
+//        pauseDownloadIntent.setAction("ACTION_PAUSE");
+//        PendingIntent pauseDownloadPendingIntent =
+//                PendingIntent.getBroadcast(this, PAUSE_DOWNLOAD_REQUESTCODE, pauseDownloadIntent, FLAG_CANCEL_CURRENT);
+//
+//        NotificationCompat.Builder downloadNotification = showNotification("This won't take long. :)")
+//                .addAction(android.R.drawable.ic_media_pause, "Pause", pauseDownloadPendingIntent);
 
-        NotificationCompat.Builder downloadNotification = showNotification("This won't take long. :)")
-                .addAction(android.R.drawable.ic_media_pause, "Pause", pauseDownloadPendingIntent);
-
-        manager.notify(R.string.NOTIFICATION_MAIN, downloadNotification.build());
+//        manager.notify(R.string.NOTIFICATION_MAIN, downloadNotification.build());
         if (mInterstitialAd != null) {
             if (mInterstitialAd.isLoaded()) {
                 mInterstitialAd.show();
             }
         }
-
+        progress = 0;
         progressBar.setVisibility(View.VISIBLE);
         pauseDownloadBtn.setVisibility(View.VISIBLE);
         pauseDownloadBtn.setText(R.string.pause_download);
@@ -511,24 +500,24 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
         });
         firebasetask.addOnPausedListener(taskSnapshot -> {
             progressBar.setProgress(progress);
-            Intent resumeDownloadIntent = new Intent(this, ACMusicBroadcastReceiver.class);
-            resumeDownloadIntent.setAction("ACTION_RESUME");
-            PendingIntent resumeDownloadPendingIntent =
-                    PendingIntent.getBroadcast(this, RESUME_DOWNLOAD_REQUESTCODE, resumeDownloadIntent, FLAG_CANCEL_CURRENT);
+//            Intent resumeDownloadIntent = new Intent(this, ACMusicBroadcastReceiver.class);
+//            resumeDownloadIntent.setAction("ACTION_RESUME");
+//            PendingIntent resumeDownloadPendingIntent =
+//                    PendingIntent.getBroadcast(this, RESUME_DOWNLOAD_REQUESTCODE, resumeDownloadIntent, FLAG_CANCEL_CURRENT);
 
-            manager.cancel(R.string.NOTIFICATION_MAIN);
-            NotificationCompat.Builder notification;
-            notification = showNotification("Currently paused.")
-                    .setSmallIcon(android.R.drawable.ic_media_pause)
-                    .addAction(android.R.drawable.stat_sys_download_done, "Resume", resumeDownloadPendingIntent)
-                    .setContentIntent(resumeDownloadPendingIntent);
-            manager.notify(R.string.NOTIFICATION_MAIN, notification.build());
+//            manager.cancel(R.string.NOTIFICATION_MAIN);
+//            NotificationCompat.Builder notification;
+//            notification = showNotification("Currently paused.")
+//                    .setSmallIcon(android.R.drawable.ic_media_pause)
+//                    .addAction(android.R.drawable.stat_sys_download_done, "Resume", resumeDownloadPendingIntent)
+//                    .setContentIntent(resumeDownloadPendingIntent);
+//            manager.notify(R.string.NOTIFICATION_MAIN, notification.build());
             pauseDownloadBtn.setEnabled(true);
             pauseDownloadBtn.setText(R.string.resume_download);
         });
         firebasetask.addOnFailureListener(e -> {
             Log.e(TAG, e.getLocalizedMessage());
-            manager.cancel(R.string.NOTIFICATION_MAIN);
+//            manager.cancel(R.string.NOTIFICATION_MAIN);
             if (storage.isFileExist(path.concat(filename))) {
                 storage.deleteFile(path.concat(filename));
             }
@@ -542,7 +531,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             cancelBtn.setVisible(false);
         });
         firebasetask.addOnCanceledListener(() -> {
-            manager.cancel(R.string.NOTIFICATION_MAIN);
+//            manager.cancel(R.string.NOTIFICATION_MAIN);
             if (storage.isFileExist(path.concat(filename))) {
                 storage.deleteFile(path.concat(filename));
             }
@@ -556,7 +545,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             cancelBtn.setVisible(false);
         });
         firebasetask.addOnCompleteListener(task -> {
-            manager.cancel(R.string.NOTIFICATION_MAIN);
+//            manager.cancel(R.string.NOTIFICATION_MAIN);
             gamecubeBtn.setEnabled(true);
             wwcfBtn.setEnabled(true);
             newleafBtn.setEnabled(true);
@@ -567,7 +556,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             cancelBtn.setVisible(false);
         });
         firebasetask.addOnSuccessListener(taskSnapshot -> {
-            manager.cancel(R.string.NOTIFICATION_MAIN);
+//            manager.cancel(R.string.NOTIFICATION_MAIN);
             gamecubeBtn.setEnabled(true);
             wwcfBtn.setEnabled(true);
             newleafBtn.setEnabled(true);
@@ -597,6 +586,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     @Override
     public void downloadAlert(String gameId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(false);
         builder.setTitle("Ready to download?");
         builder.setMessage("Please make sure you are connected to Wi-Fi.");
         builder.setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss());
@@ -627,41 +617,42 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     public Snackbar createSnackbar(String message, int duration, String gameid) {
 
         Snackbar snackbar = Snackbar.make(findViewById(R.id.activity_home), message, duration);
-        snackbar.setAction(R.string.snackbarAssetsAction, view -> downloadAlert(gameid));
+        snackbar.setDuration(BaseTransientBottomBar.LENGTH_LONG);
+        snackbar.setAction(R.string.snackbarAssetsAction1, view -> downloadAlert(gameid));
 
         return snackbar;
     }
 
-    @Override
-    public NotificationCompat.Builder showNotification(String content) {
+//    @Override
+//    public NotificationCompat.Builder showNotification(String content) {
+//
+//        Intent cancelDownloadIntent = new Intent(this, ACMusicBroadcastReceiver.class);
+//        cancelDownloadIntent.setAction("ACTION_CANCEL");
+//
+//        PendingIntent cancelDownloadPendingIntent =
+//                PendingIntent.getBroadcast(this, CANCEL_DOWNLOAD_REQUESTCODE, cancelDownloadIntent, FLAG_CANCEL_CURRENT);
+//
+//        return new NotificationCompat.Builder(this, getString(R.string.CHANNEL_ID))
+//                .setSmallIcon(android.R.drawable.stat_sys_download)
+//                .setContentTitle("Downloading assets")
+//                .setContentText(content)
+//                .setPriority(NotificationCompat.PRIORITY_LOW)
+//                .setProgress(100, progress, false)
+//                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Cancel", cancelDownloadPendingIntent);
+//    }
 
-        Intent cancelDownloadIntent = new Intent(this, ACMusicBroadcastReceiver.class);
-        cancelDownloadIntent.setAction("ACTION_CANCEL");
-
-        PendingIntent cancelDownloadPendingIntent =
-                PendingIntent.getBroadcast(this, CANCEL_DOWNLOAD_REQUESTCODE, cancelDownloadIntent, FLAG_CANCEL_CURRENT);
-
-        return new NotificationCompat.Builder(this, getString(R.string.CHANNEL_ID))
-                .setSmallIcon(android.R.drawable.stat_sys_download)
-                .setContentTitle("Downloading assets")
-                .setContentText(content)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setProgress(100, progress, false)
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Cancel", cancelDownloadPendingIntent);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void createNotificationChannel() {
-        CharSequence name = getString(R.string.channel_name);
-        String description = getString(R.string.channel_description);
-        int importance = NotificationManager.IMPORTANCE_LOW;
-        NotificationChannel channel = new NotificationChannel(getString(R.string.CHANNEL_ID), name, importance);
-        channel.setDescription(description);
-        NotificationManager notificationManager = getSystemService(NotificationManager.class);
-        if (notificationManager != null) {
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
+//    @RequiresApi(api = Build.VERSION_CODES.O)
+//    private void createNotificationChannel() {
+//        CharSequence name = getString(R.string.channel_name);
+//        String description = getString(R.string.channel_description);
+//        int importance = NotificationManager.IMPORTANCE_LOW;
+//        NotificationChannel channel = new NotificationChannel(getString(R.string.CHANNEL_ID), name, importance);
+//        channel.setDescription(description);
+//        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+//        if (notificationManager != null) {
+//            notificationManager.createNotificationChannel(channel);
+//        }
+//    }
 
     public void prepareInterstitialAd() {
         Bundle extras = new Bundle();

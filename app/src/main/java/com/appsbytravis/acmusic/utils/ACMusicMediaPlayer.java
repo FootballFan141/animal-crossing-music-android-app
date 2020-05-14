@@ -63,13 +63,16 @@ public class ACMusicMediaPlayer {
 
     public static void fadeout() {
         //TODO; Create fade effect at the end of current audio
-
         final Handler handler = new Handler();
         final Runnable runnable = new Runnable() {
             int counter = 1;
 
             @Override
             public void run() {
+                if (player == null) {
+                    handler.removeCallbacks(this);
+                    return;
+                }
                 if (counter == 50) {
                     player.setVolume(0, 0);
                     handler.removeCallbacks(this);
@@ -96,6 +99,10 @@ public class ACMusicMediaPlayer {
 
             @Override
             public void run() {
+                if (player == null) {
+                    handler.removeCallbacks(this);
+                    return;
+                }
                 if (counter == 50) {
                     player.setVolume(1.0f, 1.0f);
                     handler.removeCallbacks(this);

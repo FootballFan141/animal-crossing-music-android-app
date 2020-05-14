@@ -6,7 +6,7 @@
     <string name="APP_NAME">AC Music</string>
 
     <string name="assets_alert_msg">You need the assets for this game first.</string>
-    <string name="snackbarAssetsAction">Download Now</string>
+    <string name="snackbarAssetsAction1">Download Now</string>
     <string name="snackbarAssetsAction2">Fix now?</string>
 
     <string name="channel_name">Downloading Assets</string>

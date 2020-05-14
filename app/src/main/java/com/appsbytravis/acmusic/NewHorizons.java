@@ -149,7 +149,7 @@ public class NewHorizons extends AppCompatActivity {
             alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
         }
 
-        Calendar calendarFadeMusic = setCalendar();
+        Calendar calendarFadeMusic = getCalendar();
         int minute = calendarFadeMusic.get(Calendar.MINUTE);
         int seconds = calendarFadeMusic.get(Calendar.SECOND);
         boolean shouldfade = (minute == 59) && (seconds >= 55);
@@ -170,8 +170,10 @@ public class NewHorizons extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Another app is possibly playing music.", Toast.LENGTH_SHORT).show();
         }
 
-        calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY));
-        calendarFadeMusic.add(Calendar.SECOND, -5);
+        calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendarFadeMusic.get(Calendar.HOUR_OF_DAY));
+        calendarFadeMusic.set(Calendar.MINUTE, 59);
+        calendarFadeMusic.set(Calendar.SECOND, 55);
+        calendarFadeMusic.set(Calendar.MILLISECOND, 0);
 
         long timeInMillisFadeMusic = calendarFadeMusic.getTimeInMillis();
 
@@ -220,7 +222,7 @@ public class NewHorizons extends AppCompatActivity {
     }
 
     private Calendar setCalendar() {
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = getCalendar();
 
         calendar.set(calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -228,6 +230,10 @@ public class NewHorizons extends AppCompatActivity {
                 calendar.get(Calendar.HOUR_OF_DAY), 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar;
+    }
+
+    private Calendar getCalendar() {
+        return Calendar.getInstance();
     }
 
     @Override
