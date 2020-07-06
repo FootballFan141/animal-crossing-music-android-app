@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.appsbytravis.acmusic.utils.ACMusic;
 import com.appsbytravis.acmusic.utils.ACMusicBroadcastReceiver;
@@ -42,6 +43,8 @@ public class NewLeaf extends AppCompatActivity {
     private boolean isPaused = false;
     private PendingIntent pendingIntentFadeMusic;
     private AlarmManager alarmManagerFadeMusic;
+    private Intent changeMusicIntent;
+    private Intent fadeMusicIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,23 +119,88 @@ public class NewLeaf extends AppCompatActivity {
 
     private void preparations() {
 
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        Calendar calendarFadeMusic = getCalendar();
+
         pauseBtn = findViewById(R.id.PauseBtn);
         pauseBtn.setOnClickListener(v -> {
+            if (changeMusicIntent == null || fadeMusicIntent == null) {
+                changeMusicIntent = changeMusicAlarm();
+                fadeMusicIntent = fadeMusicAlarm(calendarFadeMusic);
+            }
             if (ACMusicMediaPlayer.isPlaying()) {
                 pauseBtn.setText(getString(R.string.resume_music));
                 isPaused = true;
                 ACMusicMediaPlayer.pause();
+                Intent intent = new Intent(getBaseContext(), ACMusicService.class);
+                intent.putExtra("changeMusicIntent", changeMusicIntent);
+                intent.putExtra("fadeMusicIntent", fadeMusicIntent);
+                intent.putExtra("changeMusicPendingIntent", pendingIntent);
+                intent.putExtra("fadeMusicPendingIntent", pendingIntentFadeMusic);
+                intent.putExtra("assetsPath", ASSETS_PATH);
+                stopService(intent);
+                if (pendingIntent != null) {
+                    alarmManager.cancel(pendingIntent);
+                    pendingIntent.cancel();
+                    pendingIntent = null;
+                    changeMusicIntent = null;
+                }
+                if (pendingIntentFadeMusic != null) {
+                    alarmManagerFadeMusic.cancel(pendingIntentFadeMusic);
+                    pendingIntentFadeMusic.cancel();
+                    pendingIntentFadeMusic = null;
+                    fadeMusicIntent = null;
+                }
+
             } else {
                 pauseBtn.setText(getString(R.string.pause_music));
                 isPaused = false;
                 ACMusicMediaPlayer.start();
+                Intent intent = new Intent(getBaseContext(), ACMusicService.class);
+                intent.putExtra("changeMusicIntent", changeMusicIntent);
+                intent.putExtra("fadeMusicIntent", fadeMusicIntent);
+                intent.putExtra("changeMusicPendingIntent", pendingIntent);
+                intent.putExtra("fadeMusicPendingIntent", pendingIntentFadeMusic);
+                intent.putExtra("assetsPath", ASSETS_PATH);
+                ContextCompat.startForegroundService(getBaseContext(), intent);
+
             }
         });
 
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!ACMusicMediaPlayer.isPlaying() && audioAuthorized) {
+            Calendar calendar = setCalendar();
+            File file = getMusic(calendar.get(Calendar.HOUR_OF_DAY));
+            ACMusicMediaPlayer.play(this, Uri.parse(file.getPath()));
+            int minute = calendarFadeMusic.get(Calendar.MINUTE);
+            int seconds = calendarFadeMusic.get(Calendar.SECOND);
+            boolean shouldfade = (minute == 59) && (seconds >= 55);
+            if (shouldfade) {
+                ACMusicMediaPlayer.fadeout();
+            } else {
+                ACMusicMediaPlayer.getMediaPlayer().setVolume(1.0f, 1.0f);
+            }
+            if (isPaused) {
+                ACMusicMediaPlayer.pause();
+            } else {
+                ACMusicMediaPlayer.start();
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), "Another app is possibly playing music.", Toast.LENGTH_SHORT).show();
+        }
+        changeMusicIntent = changeMusicAlarm();
+        fadeMusicIntent = fadeMusicAlarm(calendarFadeMusic);
+        Intent intent = new Intent(getBaseContext(), ACMusicService.class);
+        intent.putExtra("changeMusicIntent", changeMusicIntent);
+        intent.putExtra("fadeMusicIntent", fadeMusicIntent);
+        intent.putExtra("changeMusicPendingIntent", pendingIntent);
+        intent.putExtra("fadeMusicPendingIntent", pendingIntentFadeMusic);
+        intent.putExtra("assetsPath", ASSETS_PATH);
+        ContextCompat.startForegroundService(getBaseContext(), intent);
+    }
+
+    private Intent changeMusicAlarm() {
         Calendar calendar = setCalendar();
         File file = getMusic(calendar.get(Calendar.HOUR_OF_DAY));
-
         calendar.add(Calendar.HOUR_OF_DAY, 1);
         Storage storage = new Storage(this);
         long timeInMillis = calendar.getTimeInMillis();
@@ -148,33 +216,15 @@ public class NewLeaf extends AppCompatActivity {
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
         }
+        return changeMusicIntent;
+    }
 
-        Calendar calendarFadeMusic = getCalendar();
-        int minute = calendarFadeMusic.get(Calendar.MINUTE);
-        int seconds = calendarFadeMusic.get(Calendar.SECOND);
-        boolean shouldfade = (minute == 59) && (seconds >= 55);
 
-        if (!ACMusicMediaPlayer.isPlaying() && audioAuthorized) {
-            ACMusicMediaPlayer.play(this, Uri.parse(file.getPath()));
-            if (shouldfade) {
-                ACMusicMediaPlayer.fadeout();
-            } else {
-                ACMusicMediaPlayer.getMediaPlayer().setVolume(1.0f, 1.0f);
-            }
-            if (isPaused) {
-                ACMusicMediaPlayer.pause();
-            } else {
-                ACMusicMediaPlayer.start();
-            }
-        } else {
-            Toast.makeText(getApplicationContext(), "Another app is possibly playing music.", Toast.LENGTH_SHORT).show();
-        }
-
+    private Intent fadeMusicAlarm(Calendar calendarFadeMusic) {
         calendarFadeMusic.set(Calendar.HOUR_OF_DAY, calendarFadeMusic.get(Calendar.HOUR_OF_DAY));
         calendarFadeMusic.set(Calendar.MINUTE, 59);
         calendarFadeMusic.set(Calendar.SECOND, 55);
         calendarFadeMusic.set(Calendar.MILLISECOND, 0);
-
         long timeInMillisFadeMusic = calendarFadeMusic.getTimeInMillis();
 
         Intent fadeMusicIntent = new Intent(this, ACMusicBroadcastReceiver.class);
@@ -189,10 +239,7 @@ public class NewLeaf extends AppCompatActivity {
         } else {
             alarmManagerFadeMusic.set(AlarmManager.RTC_WAKEUP, timeInMillisFadeMusic, pendingIntentFadeMusic);
         }
-        Intent intent = new Intent(getBaseContext(), ACMusicService.class);
-        intent.putExtra("pendingIntent", pendingIntent);
-        intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
-        startService(intent);
+        return fadeMusicIntent;
     }
 
     private File getMusic(int hour) {
@@ -241,23 +288,30 @@ public class NewLeaf extends AppCompatActivity {
         super.onDestroy();
         ACMusicMediaPlayer.stop();
         Intent intent = new Intent(getBaseContext(), ACMusicService.class);
-        intent.putExtra("pendingIntent", pendingIntent);
-        intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
+        intent.putExtra("changeMusicIntent", changeMusicIntent);
+        intent.putExtra("fadeMusicIntent", fadeMusicIntent);
+        intent.putExtra("changeMusicPendingIntent", pendingIntent);
+        intent.putExtra("fadeMusicPendingIntent", pendingIntentFadeMusic);
+        intent.putExtra("assetsPath", ASSETS_PATH);
         stopService(intent);
         if (pendingIntent != null) {
             alarmManager.cancel(pendingIntent);
             pendingIntent.cancel();
             pendingIntent = null;
+            changeMusicIntent = null;
         }
         if (pendingIntentFadeMusic != null) {
             alarmManagerFadeMusic.cancel(pendingIntentFadeMusic);
             pendingIntentFadeMusic.cancel();
             pendingIntentFadeMusic = null;
+            fadeMusicIntent = null;
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             audioManager.abandonAudioFocusRequest(afrBuilder);
+            audioManager = null;
         } else {
             audioManager.abandonAudioFocus(focusChangeListener);
+            audioManager = null;
         }
     }
 
@@ -266,18 +320,23 @@ public class NewLeaf extends AppCompatActivity {
         super.onStop();
         if (!ACMusicMediaPlayer.isPlaying()) {
             Intent intent = new Intent(getBaseContext(), ACMusicService.class);
-            intent.putExtra("pendingIntent", pendingIntent);
-            intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
+            intent.putExtra("changeMusicIntent", changeMusicIntent);
+            intent.putExtra("fadeMusicIntent", fadeMusicIntent);
+            intent.putExtra("changeMusicPendingIntent", pendingIntent);
+            intent.putExtra("fadeMusicPendingIntent", pendingIntentFadeMusic);
+            intent.putExtra("assetsPath", ASSETS_PATH);
             stopService(intent);
             if (pendingIntent != null) {
                 alarmManager.cancel(pendingIntent);
                 pendingIntent.cancel();
                 pendingIntent = null;
+                changeMusicIntent = null;
             }
             if (pendingIntentFadeMusic != null) {
                 alarmManagerFadeMusic.cancel(pendingIntentFadeMusic);
                 pendingIntentFadeMusic.cancel();
                 pendingIntentFadeMusic = null;
+                fadeMusicIntent = null;
             }
         }
     }
@@ -298,11 +357,6 @@ public class NewLeaf extends AppCompatActivity {
                 pauseBtn.setText(getString(R.string.resume_music));
                 isPaused = true;
             }
-            preparations();
-            Intent intent = new Intent(getBaseContext(), ACMusicService.class);
-            intent.putExtra("pendingIntent", pendingIntent);
-            intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
-            startService(intent);
         }
     }
 
@@ -311,18 +365,23 @@ public class NewLeaf extends AppCompatActivity {
         super.onPause();
         if (!ACMusicMediaPlayer.isPlaying()) {
             Intent intent = new Intent(getBaseContext(), ACMusicService.class);
-            intent.putExtra("pendingIntent", pendingIntent);
-            intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
+            intent.putExtra("changeMusicIntent", changeMusicIntent);
+            intent.putExtra("fadeMusicIntent", fadeMusicIntent);
+            intent.putExtra("changeMusicPendingIntent", pendingIntent);
+            intent.putExtra("fadeMusicPendingIntent", pendingIntentFadeMusic);
+            intent.putExtra("assetsPath", ASSETS_PATH);
             stopService(intent);
             if (pendingIntent != null) {
                 alarmManager.cancel(pendingIntent);
                 pendingIntent.cancel();
                 pendingIntent = null;
+                changeMusicIntent = null;
             }
             if (pendingIntentFadeMusic != null) {
                 alarmManagerFadeMusic.cancel(pendingIntentFadeMusic);
                 pendingIntentFadeMusic.cancel();
                 pendingIntentFadeMusic = null;
+                fadeMusicIntent = null;
             }
         }
     }
@@ -330,9 +389,10 @@ public class NewLeaf extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Intent intent = new Intent(getApplicationContext(), ACMusicService.class);
-        intent.putExtra("pendingIntent", pendingIntent);
-        intent.putExtra("pendingIntentFadeMusic", pendingIntentFadeMusic);
-        startService(intent);
+        if (!isPaused) {
+            if (pendingIntent == null || pendingIntentFadeMusic == null || changeMusicIntent == null || fadeMusicIntent == null) {
+                preparations();
+            }
+        }
     }
 }
