@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import com.appsbytravis.acmusic.utils.ACMusic;
 import com.appsbytravis.acmusic.utils.ACMusicBroadcastReceiver;
@@ -160,7 +159,7 @@ public class WildWorldCityFolk extends AppCompatActivity {
                 intent.putExtra("changeMusicPendingIntent", pendingIntent);
                 intent.putExtra("fadeMusicPendingIntent", pendingIntentFadeMusic);
                 intent.putExtra("assetsPath", ASSETS_PATH);
-                ContextCompat.startForegroundService(getBaseContext(), intent);
+                startService(intent);
 
             }
         });
@@ -193,7 +192,7 @@ public class WildWorldCityFolk extends AppCompatActivity {
         intent.putExtra("changeMusicPendingIntent", pendingIntent);
         intent.putExtra("fadeMusicPendingIntent", pendingIntentFadeMusic);
         intent.putExtra("assetsPath", ASSETS_PATH);
-        ContextCompat.startForegroundService(getBaseContext(), intent);
+        startService(intent);
     }
 
     private Intent changeMusicAlarm() {
