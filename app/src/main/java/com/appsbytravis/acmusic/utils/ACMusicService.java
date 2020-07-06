@@ -9,6 +9,7 @@ import android.os.IBinder;
 
 import java.util.Calendar;
 
+import static android.app.PendingIntent.getBroadcast;
 import static com.appsbytravis.acmusic.utils.Constants.CHANGE_MUSIC_REQUESTCODE;
 import static com.appsbytravis.acmusic.utils.Constants.FADE_MUSIC_REQUESTCODE;
 
@@ -93,7 +94,7 @@ public class ACMusicService extends Service {
         Calendar calendar = setCalendar();
         calendar.add(Calendar.HOUR_OF_DAY, 1);
         long timeInMillis = calendar.getTimeInMillis();
-        PendingIntent changeMusicIntent = PendingIntent.getBroadcast(getBaseContext(), CHANGE_MUSIC_REQUESTCODE, this.changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent changeMusicIntent = getBroadcast(getApplicationContext(), CHANGE_MUSIC_REQUESTCODE, this.changeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, changeMusicIntent);
@@ -113,7 +114,7 @@ public class ACMusicService extends Service {
         calendarFadeMusic.set(Calendar.MILLISECOND, 0);
         long timeInMillisFadeMusic = calendarFadeMusic.getTimeInMillis();
 
-        PendingIntent fadeMusicIntent = PendingIntent.getBroadcast(getBaseContext(), FADE_MUSIC_REQUESTCODE, this.fadeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent fadeMusicIntent = getBroadcast(getApplicationContext(), FADE_MUSIC_REQUESTCODE, this.fadeMusicIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManagerFadeMusic = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmManagerFadeMusic.cancel(fadeMusicIntent);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

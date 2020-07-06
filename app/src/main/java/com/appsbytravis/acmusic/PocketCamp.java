@@ -185,18 +185,15 @@ public class PocketCamp extends AppCompatActivity {
         } else {
             Toast.makeText(getApplicationContext(), "Another app is possibly playing music.", Toast.LENGTH_SHORT).show();
         }
-        if (!isPaused) {
-            changeMusicIntent = changeMusicAlarm();
-            fadeMusicIntent = fadeMusicAlarm(calendarFadeMusic);
-            Intent intent = new Intent(getBaseContext(), ACMusicService.class);
-            intent.putExtra("changeMusicIntent", changeMusicIntent);
-            intent.putExtra("fadeMusicIntent", fadeMusicIntent);
-            intent.putExtra("changeMusicPendingIntent", pendingIntent);
-            intent.putExtra("fadeMusicPendingIntent", pendingIntentFadeMusic);
-            intent.putExtra("assetsPath", ASSETS_PATH);
-            ContextCompat.startForegroundService(getBaseContext(), intent);
-        }
-
+        changeMusicIntent = changeMusicAlarm();
+        fadeMusicIntent = fadeMusicAlarm(calendarFadeMusic);
+        Intent intent = new Intent(getBaseContext(), ACMusicService.class);
+        intent.putExtra("changeMusicIntent", changeMusicIntent);
+        intent.putExtra("fadeMusicIntent", fadeMusicIntent);
+        intent.putExtra("changeMusicPendingIntent", pendingIntent);
+        intent.putExtra("fadeMusicPendingIntent", pendingIntentFadeMusic);
+        intent.putExtra("assetsPath", ASSETS_PATH);
+        ContextCompat.startForegroundService(getBaseContext(), intent);
     }
 
     private Intent changeMusicAlarm() {
@@ -336,8 +333,10 @@ public class PocketCamp extends AppCompatActivity {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             audioManager.abandonAudioFocusRequest(afrBuilder);
+            audioManager = null;
         } else {
             audioManager.abandonAudioFocus(focusChangeListener);
+            audioManager = null;
         }
     }
 
@@ -413,12 +412,10 @@ public class PocketCamp extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Intent intent = new Intent(getBaseContext(), ACMusicService.class);
-        intent.putExtra("changeMusicIntent", changeMusicIntent);
-        intent.putExtra("fadeMusicIntent", fadeMusicIntent);
-        intent.putExtra("changeMusicPendingIntent", pendingIntent);
-        intent.putExtra("fadeMusicPendingIntent", pendingIntentFadeMusic);
-        intent.putExtra("assetsPath", ASSETS_PATH);
-        ContextCompat.startForegroundService(getBaseContext(), intent);
+        if (!isPaused) {
+            if (pendingIntent == null || pendingIntentFadeMusic == null || changeMusicIntent == null || fadeMusicIntent == null) {
+                preparations();
+            }
+        }
     }
 }
