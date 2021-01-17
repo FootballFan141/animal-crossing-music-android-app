@@ -127,9 +127,11 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             int files = storage.getNestedFiles(path.concat(ASSETS_PATH.concat("gamecube"))).size();
             if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("gamecube")) && files == GAMECUBE_FILES) {
                 if (isNetworkConnected()) {
-                    if (mInterstitialAd.isLoaded()) {
-                        mInterstitialAd.setAdListener(new AdListeners(this, "gamecube"));
-                        mInterstitialAd.show();
+                    if (mInterstitialAd != null) {
+                        if (mInterstitialAd.isLoaded()) {
+                            mInterstitialAd.setAdListener(new AdListeners(this, "gamecube"));
+                            mInterstitialAd.show();
+                        }
                     } else {
                         Intent i = new Intent(HomeActivity.this, Gamecube.class);
                         startActivity(i);
@@ -160,9 +162,11 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             int files = storage.getNestedFiles(path.concat(ASSETS_PATH.concat("wwcf"))).size();
             if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("wwcf")) && files == WWCF_FILES) {
                 if (isNetworkConnected()) {
-                    if (mInterstitialAd.isLoaded()) {
-                        mInterstitialAd.setAdListener(new AdListeners(this, "wwcf"));
-                        mInterstitialAd.show();
+                    if (mInterstitialAd != null) {
+                        if (mInterstitialAd.isLoaded()) {
+                            mInterstitialAd.setAdListener(new AdListeners(this, "wwcf"));
+                            mInterstitialAd.show();
+                        }
                     } else {
                         Intent i = new Intent(HomeActivity.this, WildWorldCityFolk.class);
                         startActivity(i);
@@ -193,9 +197,11 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             int files = storage.getNestedFiles(path.concat(ASSETS_PATH.concat("newleaf"))).size();
             if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("newleaf")) && files == NEWLEAF_FILES) {
                 if (isNetworkConnected()) {
-                    if (mInterstitialAd.isLoaded()) {
-                        mInterstitialAd.setAdListener(new AdListeners(this, "newleaf"));
-                        mInterstitialAd.show();
+                    if (mInterstitialAd != null) {
+                        if (mInterstitialAd.isLoaded()) {
+                            mInterstitialAd.setAdListener(new AdListeners(this, "newleaf"));
+                            mInterstitialAd.show();
+                        }
                     } else {
                         Intent i = new Intent(HomeActivity.this, NewLeaf.class);
                         startActivity(i);
@@ -227,8 +233,10 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("pocketcamp")) && files == POCKET_CAMP_FILES) {
                 if (isNetworkConnected()) {
                     if (mInterstitialAd.isLoaded()) {
-                        mInterstitialAd.setAdListener(new AdListeners(this, "pocketcamp"));
-                        mInterstitialAd.show();
+                        if (mInterstitialAd != null) {
+                            mInterstitialAd.setAdListener(new AdListeners(this, "pocketcamp"));
+                            mInterstitialAd.show();
+                        }
                     } else {
                         Intent i = new Intent(HomeActivity.this, PocketCamp.class);
                         startActivity(i);
@@ -259,9 +267,11 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             int files = storage.getNestedFiles(path.concat(ASSETS_PATH.concat("newhorizons"))).size();
             if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("newhorizons")) && files == NEWHORIZONS_FILES) {
                 if (isNetworkConnected()) {
-                    if (mInterstitialAd.isLoaded()) {
-                        mInterstitialAd.setAdListener(new AdListeners(this, "newhorizons"));
-                        mInterstitialAd.show();
+                    if (mInterstitialAd != null) {
+                        if (mInterstitialAd.isLoaded()) {
+                            mInterstitialAd.setAdListener(new AdListeners(this, "newhorizons"));
+                            mInterstitialAd.show();
+                        }
                     } else {
                         Intent i = new Intent(HomeActivity.this, NewHorizons.class);
                         startActivity(i);
