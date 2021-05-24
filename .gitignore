@@ -13,3 +13,5 @@
 /app/release/
 /app/google-services.json
 /app/libs/oss-licenses-plugin-0.9.4.jar
+/app/src/main/res/raw
+/app/src/main/java/com/appsbytravis/acmusic/utils/ZipTool_v2.java
