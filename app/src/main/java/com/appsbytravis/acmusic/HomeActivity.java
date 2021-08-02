@@ -17,18 +17,20 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.appsbytravis.acmusic.utils.AdListeners;
 import com.appsbytravis.acmusic.utils.AssetsInterface;
 import com.appsbytravis.acmusic.utils.Constants;
 import com.appsbytravis.acmusic.utils.ZipTool;
-import com.google.ads.mediation.admob.AdMobAdapter;
+import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -54,7 +56,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
     private static final String[] ASSET_FILES = Constants.ASSET_FILES;
     private static final String[] ASSET_SIZES = Constants.ASSET_SIZES;
     //    private NotificationManagerCompat manager;
-    private AdRequest.Builder AdRequestBuilder;
+    private AdRequest AdRequest;
     private InterstitialAd mInterstitialAd;
 
 
@@ -111,8 +113,7 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             }
             bannerAd.setVisibility(View.VISIBLE);
             initializeAds();
-            prepareInterstitialAd();
-            bannerAd.loadAd(AdRequestBuilder.build());
+            bannerAd.loadAd(AdRequest);
         } else {
             bannerAd.setVisibility(View.GONE);
         }
@@ -128,10 +129,27 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("gamecube")) && files == GAMECUBE_FILES) {
                 if (isNetworkConnected()) {
                     if (mInterstitialAd != null) {
-                        if (mInterstitialAd.isLoaded()) {
-                            mInterstitialAd.setAdListener(new AdListeners(this, "gamecube"));
-                            mInterstitialAd.show();
-                        }
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+                                super.onAdFailedToShowFullScreenContent(adError);
+                                Intent i = new Intent(HomeActivity.this, Gamecube.class);
+                                startActivity(i);
+                            }
+
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                super.onAdShowedFullScreenContent();
+                            }
+
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                super.onAdDismissedFullScreenContent();
+                                Intent i = new Intent(HomeActivity.this, Gamecube.class);
+                                startActivity(i);
+                            }
+                        });
+                        mInterstitialAd.show(this);
                     } else {
                         Intent i = new Intent(HomeActivity.this, Gamecube.class);
                         startActivity(i);
@@ -163,10 +181,27 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("wwcf")) && files == WWCF_FILES) {
                 if (isNetworkConnected()) {
                     if (mInterstitialAd != null) {
-                        if (mInterstitialAd.isLoaded()) {
-                            mInterstitialAd.setAdListener(new AdListeners(this, "wwcf"));
-                            mInterstitialAd.show();
-                        }
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(@NonNull  AdError adError) {
+                                super.onAdFailedToShowFullScreenContent(adError);
+                                Intent i = new Intent(HomeActivity.this, WildWorldCityFolk.class);
+                                startActivity(i);
+                            }
+
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                super.onAdShowedFullScreenContent();
+                            }
+
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                super.onAdDismissedFullScreenContent();
+                                Intent i = new Intent(HomeActivity.this, WildWorldCityFolk.class);
+                                startActivity(i);
+                            }
+                        });
+                        mInterstitialAd.show(this);
                     } else {
                         Intent i = new Intent(HomeActivity.this, WildWorldCityFolk.class);
                         startActivity(i);
@@ -198,10 +233,27 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("newleaf")) && files == NEWLEAF_FILES) {
                 if (isNetworkConnected()) {
                     if (mInterstitialAd != null) {
-                        if (mInterstitialAd.isLoaded()) {
-                            mInterstitialAd.setAdListener(new AdListeners(this, "newleaf"));
-                            mInterstitialAd.show();
-                        }
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+                                super.onAdFailedToShowFullScreenContent(adError);
+                                Intent i = new Intent(HomeActivity.this, NewLeaf.class);
+                                startActivity(i);
+                            }
+
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                super.onAdShowedFullScreenContent();
+                            }
+
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                super.onAdDismissedFullScreenContent();
+                                Intent i = new Intent(HomeActivity.this, NewLeaf.class);
+                                startActivity(i);
+                            }
+                        });
+                        mInterstitialAd.show(this);
                     } else {
                         Intent i = new Intent(HomeActivity.this, NewLeaf.class);
                         startActivity(i);
@@ -232,11 +284,28 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             int files = storage.getNestedFiles(path.concat(ASSETS_PATH.concat("pocketcamp"))).size();
             if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("pocketcamp")) && files == POCKET_CAMP_FILES) {
                 if (isNetworkConnected()) {
-                    if (mInterstitialAd.isLoaded()) {
-                        if (mInterstitialAd != null) {
-                            mInterstitialAd.setAdListener(new AdListeners(this, "pocketcamp"));
-                            mInterstitialAd.show();
-                        }
+                    if (mInterstitialAd != null) {
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+                                super.onAdFailedToShowFullScreenContent(adError);
+                                Intent i = new Intent(HomeActivity.this, PocketCamp.class);
+                                startActivity(i);
+                            }
+
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                super.onAdShowedFullScreenContent();
+                            }
+
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                super.onAdDismissedFullScreenContent();
+                                Intent i = new Intent(HomeActivity.this, PocketCamp.class);
+                                startActivity(i);
+                            }
+                        });
+                        mInterstitialAd.show(this);
                     } else {
                         Intent i = new Intent(HomeActivity.this, PocketCamp.class);
                         startActivity(i);
@@ -268,10 +337,27 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             if (storage.isDirectoryExists(path.concat(ASSETS_PATH).concat("newhorizons")) && files == NEWHORIZONS_FILES) {
                 if (isNetworkConnected()) {
                     if (mInterstitialAd != null) {
-                        if (mInterstitialAd.isLoaded()) {
-                            mInterstitialAd.setAdListener(new AdListeners(this, "newhorizons"));
-                            mInterstitialAd.show();
-                        }
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(@NonNull  AdError adError) {
+                                super.onAdFailedToShowFullScreenContent(adError);
+                                Intent i = new Intent(HomeActivity.this, NewHorizons.class);
+                                startActivity(i);
+                            }
+
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                super.onAdShowedFullScreenContent();
+                            }
+
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                super.onAdDismissedFullScreenContent();
+                                Intent i = new Intent(HomeActivity.this, NewHorizons.class);
+                                startActivity(i);
+                            }
+                        });
+                        mInterstitialAd.show(this);
                     } else {
                         Intent i = new Intent(HomeActivity.this, NewHorizons.class);
                         startActivity(i);
@@ -393,6 +479,8 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
             firebasetask = null;
         }
         instance = null;
+        AdRequest = null;
+        mInterstitialAd = null;
     }
 
     @Override
@@ -490,11 +578,9 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
 //                .addAction(android.R.drawable.ic_media_pause, "Pause", pauseDownloadPendingIntent);
 
 //        manager.notify(R.string.NOTIFICATION_MAIN, downloadNotification.build());
-        if (mInterstitialAd != null) {
-            if (mInterstitialAd.isLoaded()) {
-                mInterstitialAd.show();
-            }
-        }
+//        if (mInterstitialAd != null) {
+//            mInterstitialAd.show(this);
+//        }
         progress = 0;
         progressBar.setVisibility(View.VISIBLE);
         pauseDownloadBtn.setVisibility(View.VISIBLE);
@@ -664,21 +750,21 @@ public class HomeActivity extends AppCompatActivity implements AssetsInterface {
 //        }
 //    }
 
-    public void prepareInterstitialAd() {
-        Bundle extras = new Bundle();
-        mInterstitialAd.loadAd(AdRequestBuilder.addNetworkExtrasBundle(AdMobAdapter.class, extras).build());
-    }
-
-    public void showInterstitialAd() {
-
-    }
-
     private void initializeAds() {
-        MobileAds.initialize(this, getString(R.string.ADMOB_ID));
-        mInterstitialAd = new InterstitialAd(getApplicationContext());
-        mInterstitialAd.setAdUnitId(getString(R.string.ADMOB_INTERSTITIAL));
-//        mInterstitialAd.setAdListener(new AdListeners(this, ""));
-        AdRequestBuilder = new AdRequest.Builder();
+        AdRequest = new AdRequest.Builder().build();
+        InterstitialAd.load(getApplicationContext(), getString(R.string.ADMOB_INTERSTITIAL), AdRequest, new InterstitialAdLoadCallback() {
+            @Override
+            public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                super.onAdLoaded(interstitialAd);
+                mInterstitialAd = interstitialAd;
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
+                mInterstitialAd = null;
+            }
+        });
     }
 
     private boolean isNetworkConnected() {
