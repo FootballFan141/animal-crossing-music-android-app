@@ -18,9 +18,11 @@ Those rights go to Nintendo for that amazing game. :)
 Some things I would like to do.
 
 - [ ] Clean up the code
-- [ ] K.K. Music
+- [ ] K.K. Music every Saturday starting at 8pm
 - [ ] Music controls in notification area
 - [ ] Changing of background every hour
+- [ ] Town Tunes at the top of the hour
+- [ ] Dark mode
 
 ### Contributing
 
